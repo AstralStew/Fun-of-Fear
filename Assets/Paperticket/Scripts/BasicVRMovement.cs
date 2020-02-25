@@ -19,15 +19,18 @@ namespace Paperticket
 
         Vector2 input;
 
+        Camera camera;
+
         private void Awake() {
             rb = GetComponent<Rigidbody>();
+            camera = GetComponentInChildren<Camera>();
         }
 
         private void FixedUpdate() {
             float speed = GetInput();
 
             // always move along the camera forward as it is the direction that it being aimed at
-            Vector3 desiredMove = transform.forward * input.y + transform.right * input.x;
+            Vector3 desiredMove = camera.transform.forward * input.y + transform.right * input.x;
 
             // get a normal for the surface that is being touched to move along it
             RaycastHit hitInfo;
