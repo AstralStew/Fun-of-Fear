@@ -30,7 +30,7 @@ namespace Paperticket
             float speed = GetInput();
 
             // always move along the camera forward as it is the direction that it being aimed at
-            Vector3 desiredMove = camera.transform.forward * input.y + transform.right * input.x;
+            Vector3 desiredMove = camera.transform.forward * input.y + camera.transform.right * input.x;
 
             // get a normal for the surface that is being touched to move along it
             RaycastHit hitInfo;
