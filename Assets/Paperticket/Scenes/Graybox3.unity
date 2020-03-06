@@ -194,7 +194,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 87008131}
   m_LocalRotation: {x: -0, y: -0.9767755, z: -0, w: 0.2142653}
-  m_LocalPosition: {x: -0.377, y: 1.045, z: -0.68}
+  m_LocalPosition: {x: -69, y: 3.055, z: -74}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1729175713}
@@ -2375,22 +2375,32 @@ PrefabInstance:
     - target: {fileID: 2557923378754488598, guid: 276765f2a48399749886317cadbd108a,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2557923378754488598, guid: 276765f2a48399749886317cadbd108a,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2557923378754488598, guid: 276765f2a48399749886317cadbd108a,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2557923378754488599, guid: 276765f2a48399749886317cadbd108a,
         type: 3}
       propertyPath: m_Name
       value: The Level - Gate Layout
+      objectReference: {fileID: 0}
+    - target: {fileID: 2557923379522081479, guid: 276765f2a48399749886317cadbd108a,
+        type: 3}
+      propertyPath: m_CastShadows
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2557923379522081479, guid: 276765f2a48399749886317cadbd108a,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 276765f2a48399749886317cadbd108a, type: 3}
