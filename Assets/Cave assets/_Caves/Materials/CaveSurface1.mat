@@ -95,7 +95,7 @@ Material:
     - _EmissionMultiplayer: 0
     - _EmissionSwitch: 0
     - _GlossMapScale: 0.166
-    - _Glossiness: 0.5
+    - _Glossiness: 0.208
     - _GlossyReflections: 0
     - _MetalicBrightnes: 0
     - _Metallic: 0
