@@ -33,10 +33,9 @@ namespace Paperticket
             Vector3 desiredMove = camera.transform.forward * input.y + camera.transform.right * input.x;
 
             // get a normal for the surface that is being touched to move along it
-            RaycastHit hitInfo;
-            Physics.SphereCast(transform.position, capsuleController.radius, Vector3.down, out hitInfo,
+            Physics.SphereCast(transform.position, capsuleController.radius, Vector3.down, out RaycastHit hitInfo,
                                capsuleController.height / 2f, Physics.AllLayers, QueryTriggerInteraction.Ignore);
-            desiredMove = Vector3.ProjectOnPlane(desiredMove, hitInfo.normal).normalized;
+            desiredMove = Vector3.ProjectOnPlane(desiredMove, hitInfo.normal);
 
             Vector3 newPosition = rb.position + (speed * new Vector3(desiredMove.x, 0, desiredMove.z));
 
