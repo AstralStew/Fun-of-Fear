@@ -16,6 +16,7 @@ namespace Paperticket
         [SerializeField] float moveSpeed;
 
         Rigidbody rb;
+        float LastMoveVelocity;
 
         Vector2 input;
 
@@ -57,7 +58,10 @@ namespace Paperticket
                 input.Normalize();
             }
 
-            return moveSpeed;
+
+            //Mathf.MoveTowards(rb.velocity.magnitude, moveSpeed, moveSpeed / 10);
+
+            return moveSpeed; // Mathf.MoveTowards(rb.velocity.magnitude, moveSpeed, moveSpeed / 40); ;
 
         }
 
