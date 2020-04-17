@@ -6,10 +6,7 @@ using UnityStandardAssets.CrossPlatformInput;
 namespace Paperticket
 {
     [RequireComponent(typeof(Rigidbody))]
-    public class BasicVRMovement : MonoBehaviour
-    {
-
-
+    public class BasicVRMovement : MonoBehaviour {
 
         [SerializeField] CapsuleCollider capsuleController;
 
