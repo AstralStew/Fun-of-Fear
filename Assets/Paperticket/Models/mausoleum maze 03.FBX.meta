@@ -3,7 +3,27 @@ guid: 33725469ecc7c0a43b6a4c65054c3119
 ModelImporter:
   serializedVersion: 19300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Brick wall
+    second: {fileID: 2100000, guid: 8c31fa30c1d116046ac17672ff4e29b1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: crypts 01
+    second: {fileID: 2100000, guid: 8bc6d01f7c9204e409bd8fba0b13cea7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mausoleum ground
+    second: {fileID: 2100000, guid: 145abf3b0c4d72040bcf5a3e196655d3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wall 02
+    second: {fileID: 2100000, guid: 6af5849ac43d4134f82cbd79e0fc48ff, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0
@@ -35,7 +55,11 @@ ModelImporter:
   meshes:
     lODScreenPercentages: []
     globalScale: 1
+<<<<<<< HEAD
     meshCompression: 2
+=======
+    meshCompression: 0
+>>>>>>> master
     addColliders: 1
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1
