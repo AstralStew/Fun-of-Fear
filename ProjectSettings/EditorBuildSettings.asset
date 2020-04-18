@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Paperticket/Scenes/Graybox3.unity
-    guid: 2b5b8193aa859e5408929fbc948bde85
+    path: Assets/Paperticket/Scenes/Prototyping/Pathfinding.unity
+    guid: ad4510b97526fcb46a2175e69331f46e
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 017bca4b138d0304f8835f590ea0c81b,
       type: 2}
