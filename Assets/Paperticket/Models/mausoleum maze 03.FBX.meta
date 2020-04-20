@@ -55,18 +55,14 @@ ModelImporter:
   meshes:
     lODScreenPercentages: []
     globalScale: 1
-<<<<<<< HEAD
-    meshCompression: 2
-=======
     meshCompression: 0
->>>>>>> master
     addColliders: 1
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1
-    importVisibility: 0
-    importBlendShapes: 0
-    importCameras: 0
-    importLights: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
     swapUVChannels: 0
     generateSecondaryUV: 1
     useFileUnits: 1
