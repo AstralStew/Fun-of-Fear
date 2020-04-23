@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering;
 
 namespace Paperticket {
     public class GhostMovement : MonoBehaviour
@@ -16,15 +17,17 @@ namespace Paperticket {
 
         [SerializeField] private float minWaitDuration;
         [SerializeField] private float maxWaitDuration;
-        [SerializeField] private int checkFrequency;        // How long to wait between checks to see if we've reached our destination
-        [SerializeField] private float pauseAfterTurning;   // How long to wait after turning towards a new wandering path
+        [SerializeField] private float destinationCheckFrequency;   // How long to wait between checks to see if we've reached our destination
+        [SerializeField] private float pauseAfterTurning;           // How long to wait after turning towards a new wandering path
 
 
         [Header("Perception Controls")]
 
+        [SerializeField] private Transform sightTransform;
         [SerializeField] private float sightRange;
         [SerializeField] private float sightSphereRadius;
         [SerializeField] private LayerMask targetLayers;
+        [SerializeField] private float sightCheckFrequency;         // How long to wait between checks to see if we can see the player
 
 
         [SerializeField] private bool debugging;
@@ -39,9 +42,16 @@ namespace Paperticket {
         private int previousIndex;
         private NavMeshAgent agent;
 
+        public delegate void OnSeePlayer();
+        public event OnSeePlayer onSeePlayer;
+
+        public delegate void OnLosePlayer();
+        public event OnSeePlayer onLosePlayer;
+
+
 
         // Start is called before the first frame update
-        void Start() {
+        void Awake() {
             // Grab the nav agent reference
             agent = agent ?? GetComponent<NavMeshAgent>();
             if (!agent) {
@@ -63,43 +73,62 @@ namespace Paperticket {
                 gameObject.SetActive(false);
             }
 
+            // Grab the nav agent reference            
+            if (!sightTransform) {
+                Debug.LogError("[GhostMovement] ERROR -> No SightTransform found on this object! Please add one. Disabling object.");
+                gameObject.SetActive(false);
+            }
+
+        }
+
+        void Start() {
             StartCoroutine(CheckForPlayer());
             StartCoroutine(Waiting());
         }
 
-
-        // Use this for checking to see player later
-        //void Update()
-        //{
-        //    //
-        //}
-
-
-
-        /// PERCEPTION FUNCTIONS
         
+
+
+        /// PERCEPTION FUNCTIONS        
         IEnumerator CheckForPlayer() {
+            Vector3 pos = Vector3.zero;
+            Color col = Color.white;
 
             while (true) {
 
-                if (debugging) {
-                    Vector3 pos = transform.position;
-                    Debug.DrawLine(pos, pos + (transform.forward * sightRange), Color.red);
-                    Debug.DrawLine(pos + (transform.right * sightSphereRadius), pos + (transform.right * sightSphereRadius) + (transform.forward * sightRange), Color.red);
-                    Debug.DrawLine(pos - (transform.right * sightSphereRadius), pos - (transform.right * sightSphereRadius) + (transform.forward * sightRange), Color.red);
-                    Debug.DrawLine(pos + (transform.up * sightSphereRadius), pos + (transform.right * sightSphereRadius) + (transform.forward * sightRange), Color.red);
-                    Debug.DrawLine(pos - (transform.up * sightSphereRadius), pos + (transform.right * sightSphereRadius) + (transform.forward * sightRange), Color.red);
-                    Debug.Log("[GhostMovement] I can see the player!");
-                }
-
                 RaycastHit[] raycastHits = new RaycastHit[1];
-                if (Physics.SphereCastNonAlloc(transform.position, sightSphereRadius, transform.forward, raycastHits, sightRange, targetLayers.value) > 0) {
-                    if (debugging) Debug.Log("[GhostMovement] I can see the player!");
+                if (Physics.SphereCastNonAlloc(sightTransform.position, sightSphereRadius, sightTransform.forward, raycastHits, sightRange, targetLayers.value) > 0) {
+                    //if (debugging) Debug.Log("[GhostMovement] Raycast hit something!");
 
+                    if (raycastHits[0].transform.gameObject.layer == LayerMask.NameToLayer("Player")) {
 
+                        // Trigger event if we are just seeing player
+                        if (!canSeePlayer) {
+                            onSeePlayer();
+                            canSeePlayer = true;
+                            if (debugging) col = Color.green;
+                        }                        
+
+                    } else if (canSeePlayer) {
+
+                        canSeePlayer = false;
+                        if (debugging) col = Color.red;
+                        //Do a timer to stop seeing player
+                    }                        
                 }
 
-                yield return null;
+
+                if (debugging) {
+                    pos = sightTransform.position;
+                    Debug.DrawLine(pos, pos + (sightTransform.forward * sightRange), col);
+                    Debug.DrawLine(pos + (sightTransform.right * sightSphereRadius), pos + (sightTransform.right * sightSphereRadius) + (sightTransform.forward * sightRange), col);
+                    Debug.DrawLine(pos - (sightTransform.right * sightSphereRadius), pos - (sightTransform.right * sightSphereRadius) + (sightTransform.forward * sightRange), col);
+                    Debug.DrawLine(pos + (sightTransform.up * sightSphereRadius), pos + (sightTransform.right * sightSphereRadius) + (sightTransform.forward * sightRange), col);
+                    Debug.DrawLine(pos - (sightTransform.up * sightSphereRadius), pos + (sightTransform.right * sightSphereRadius) + (sightTransform.forward * sightRange), col);
+                }
+
+                // Wait a while before checking again
+                yield return new WaitForSeconds(sightCheckFrequency == 0 ? Time.deltaTime : Mathf.Abs(sightCheckFrequency));
 
             }
 
@@ -109,7 +138,7 @@ namespace Paperticket {
 
         /// WANDERING FUNCTIONS
 
-        public void PickNewWaypoint() {
+        void PickNewWaypoint() {
 
             if (debugging) Debug.Log("[GhostMovement] Picking new waypoint..");
 
@@ -228,7 +257,7 @@ namespace Paperticket {
 
 
                 // Wait a while before checking again
-                yield return new WaitForSeconds(checkFrequency == 0 ? Time.deltaTime : Mathf.Abs(checkFrequency));
+                yield return new WaitForSeconds(destinationCheckFrequency == 0 ? Time.deltaTime : Mathf.Abs(destinationCheckFrequency));
             }
 
             if (debugging) Debug.Log("[GhostMovement] Wandered successfully!");
