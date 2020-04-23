@@ -12,18 +12,29 @@ namespace Paperticket {
         [SerializeField] private Transform WaypointsParent;
         private List<Transform> waypoints = new List<Transform>();
 
-        [Header("Controls")]
+        [Header("Wandering Controls")]
 
         [SerializeField] private float minWaitDuration;
         [SerializeField] private float maxWaitDuration;
         [SerializeField] private int checkFrequency;        // How long to wait between checks to see if we've reached our destination
         [SerializeField] private float pauseAfterTurning;   // How long to wait after turning towards a new wandering path
+
+
+        [Header("Perception Controls")]
+
+        [SerializeField] private float sightRange;
+        [SerializeField] private float sightSphereRadius;
+        [SerializeField] private LayerMask targetLayers;
+
+
         [SerializeField] private bool debugging;
 
         [Header("Read Only")]
 
         [SerializeField] private Vector3 currentTarget;
         [SerializeField] private float smoothing;
+
+        [SerializeField] private bool canSeePlayer;
 
         private int previousIndex;
         private NavMeshAgent agent;
@@ -45,20 +56,14 @@ namespace Paperticket {
                 gameObject.SetActive(false);
             }
 
-            // Grab the waypoints reference
-
+            // Grab reference to each individual waypoint
             foreach (Transform t in WaypointsParent.GetComponentsInChildren<Transform>()) if (t != WaypointsParent) waypoints.Add(t);
             if (waypoints.Count == 0) {
                 Debug.LogError("[GhostMovement] ERROR -> No waypoints found under WaypointsParent! Please add children to WaypointsParent. Disabling object.");
                 gameObject.SetActive(false);
             }
 
-
-
-            //agent.updateRotation = false;
-
-
-
+            StartCoroutine(CheckForPlayer());
             StartCoroutine(Waiting());
         }
 
@@ -70,6 +75,39 @@ namespace Paperticket {
         //}
 
 
+
+        /// PERCEPTION FUNCTIONS
+        
+        IEnumerator CheckForPlayer() {
+
+            while (true) {
+
+                if (debugging) {
+                    Vector3 pos = transform.position;
+                    Debug.DrawLine(pos, pos + (transform.forward * sightRange), Color.red);
+                    Debug.DrawLine(pos + (transform.right * sightSphereRadius), pos + (transform.right * sightSphereRadius) + (transform.forward * sightRange), Color.red);
+                    Debug.DrawLine(pos - (transform.right * sightSphereRadius), pos - (transform.right * sightSphereRadius) + (transform.forward * sightRange), Color.red);
+                    Debug.DrawLine(pos + (transform.up * sightSphereRadius), pos + (transform.right * sightSphereRadius) + (transform.forward * sightRange), Color.red);
+                    Debug.DrawLine(pos - (transform.up * sightSphereRadius), pos + (transform.right * sightSphereRadius) + (transform.forward * sightRange), Color.red);
+                    Debug.Log("[GhostMovement] I can see the player!");
+                }
+
+                RaycastHit[] raycastHits = new RaycastHit[1];
+                if (Physics.SphereCastNonAlloc(transform.position, sightSphereRadius, transform.forward, raycastHits, sightRange, targetLayers.value) > 0) {
+                    if (debugging) Debug.Log("[GhostMovement] I can see the player!");
+
+
+                }
+
+                yield return null;
+
+            }
+
+        }
+
+
+
+        /// WANDERING FUNCTIONS
 
         public void PickNewWaypoint() {
 
@@ -160,7 +198,6 @@ namespace Paperticket {
             StartCoroutine(Wandering());
 
         }
-
 
         IEnumerator Wandering() {
 
