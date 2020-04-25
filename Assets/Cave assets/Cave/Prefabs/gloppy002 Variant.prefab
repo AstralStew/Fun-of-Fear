@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 100000, guid: 353fc41f5ded10c40a0c33b152b145d5, type: 3}
       propertyPath: m_Name
-      value: gloppy002
+      value: gloppy002 Variant
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 353fc41f5ded10c40a0c33b152b145d5, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -19,9 +19,17 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 4294967295
       objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: 353fc41f5ded10c40a0c33b152b145d5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 100004, guid: 353fc41f5ded10c40a0c33b152b145d5, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 100004, guid: 353fc41f5ded10c40a0c33b152b145d5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 100006, guid: 353fc41f5ded10c40a0c33b152b145d5, type: 3}
       propertyPath: m_StaticEditorFlags
