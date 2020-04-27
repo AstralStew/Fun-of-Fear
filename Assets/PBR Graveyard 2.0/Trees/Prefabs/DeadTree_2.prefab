@@ -376,7 +376,7 @@ MonoBehaviour:
   m_Name: Tree Data
   m_EditorClassIdentifier: 
   _uniqueID: 736
-  materialHash: 0b68fb9a612b96a39b00cfc9ca7f4f46215482368
+  materialHash: e25296e8672ad92633f4d6db07a468f8215482368
   root:
     _uniqueID: 1
     seed: 1234
@@ -478,17 +478,17 @@ MonoBehaviour:
     rootSpread: 1.51
     groundOffset: 1.77
     rootMatrix:
-      e00: 1
-      e01: 0
-      e02: 0
+      e00: -0.16760044
+      e01: 7.215519e-15
+      e02: 0.985855
       e03: 0
-      e10: 0
+      e10: -1.8827673e-15
       e11: 1
-      e12: 0
+      e12: -7.639126e-15
       e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
+      e20: -0.985855
+      e21: -3.1364565e-15
+      e22: -0.16760044
       e23: 0
       e30: 0
       e31: 0
@@ -1654,17 +1654,17 @@ MonoBehaviour:
     pitch: -0
     rotation: {x: 0, y: 0, z: 0, w: 1}
     matrix:
-      e00: 1
-      e01: 0
-      e02: 0
+      e00: -0.16760044
+      e01: 7.215519e-15
+      e02: 0.985855
       e03: 0
-      e10: 0
+      e10: -1.8827673e-15
       e11: 1
-      e12: 0
+      e12: -7.639126e-15
       e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
+      e20: -0.985855
+      e21: -3.1364565e-15
+      e22: -0.16760044
       e23: 0
       e30: 0
       e31: 0

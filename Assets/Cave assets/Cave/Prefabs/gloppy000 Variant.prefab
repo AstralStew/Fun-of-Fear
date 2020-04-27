@@ -99,6 +99,10 @@ PrefabInstance:
       propertyPath: m_ReflectionProbeUsage
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3300006, guid: 863567ba6a0e13844b345505da45ac9f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 20500000, guid: 863567ba6a0e13844b345505da45ac9f, type: 3}
       propertyPath: m_LODs.Array.size
       value: 2
