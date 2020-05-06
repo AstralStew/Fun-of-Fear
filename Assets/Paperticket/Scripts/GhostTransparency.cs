@@ -12,6 +12,8 @@ namespace Paperticket {
         [SerializeField] Material ghostMaterial;
         [SerializeField] List<Material> chainMaterials = new List<Material>();
 
+        private GhostPerception ghostPerception;
+
         [Header("Controls")]
         [SerializeField] float fadeDuration;
 
@@ -19,6 +21,9 @@ namespace Paperticket {
         Color ghostMatTransparent;
         Color chainMatColor;
         Color chainMatTransparent;
+
+        Coroutine fadingGhost;
+        Coroutine fadingChain;
 
         void Awake() {
 
@@ -33,43 +38,73 @@ namespace Paperticket {
             chainMatColor = chainMaterials[0].color;
             chainMatTransparent = new Color(chainMatColor.r, chainMatColor.g, chainMatColor.b, 0.1f);
 
-            StartCoroutine(TestingTransparency());
-
-        }
-
-        IEnumerator TestingTransparency() {
-            while (true) {
-
-                yield return new WaitForSeconds(Random.Range(10f, 18f));
-
-                ToggleGhostTransparency(true);
-                ToggleChainTransparency(true);
-                //if (Random.Range(0f, 10f) > 0.5f) {
-                //    ToggleChainTransparency(true);
-                //}
-
-                yield return new WaitForSeconds(Random.Range(5f, 16f));
-
-                ToggleGhostTransparency(false);
-                ToggleChainTransparency(false);
-                //if (chainMaterials[0].color == chainMatTransparent) {
-                //    ToggleChainTransparency(false);
-                //}
-
+            //StartCoroutine(TestingTransparency());
+            // Grab the ghost movement reference
+            ghostPerception = ghostPerception ?? GetComponentInParent<GhostPerception>();
+            if (!ghostPerception) {
+                Debug.LogError("[GhostAnimController] ERROR -> No Ghost Perception component found on parent object! Please add one. Disabling object.");
+                gameObject.SetActive(false);
             }
+
         }
 
+        void OnEnable() {
+            ghostPerception.onSeePlayer += SetTransparencyOff;
+            ghostPerception.onForgottenPlayer += SetTransparencyOn;
 
+            ToggleGhostTransparency(true);
+            ToggleChainTransparency(true);
+        }
 
+        void OnDisable() {
+            ghostPerception.onSeePlayer -= SetTransparencyOff;
+            ghostPerception.onForgottenPlayer -= SetTransparencyOn;
+        }
 
+        //IEnumerator TestingTransparency() {
+        //    while (true) {
 
+        //        yield return new WaitForSeconds(Random.Range(10f, 18f));
+
+        //        ToggleGhostTransparency(true);
+        //        ToggleChainTransparency(true);
+        //        //if (Random.Range(0f, 10f) > 0.5f) {
+        //        //    ToggleChainTransparency(true);
+        //        //}
+
+        //        yield return new WaitForSeconds(Random.Range(5f, 16f));
+
+        //        ToggleGhostTransparency(false);
+        //        ToggleChainTransparency(false);
+        //        //if (chainMaterials[0].color == chainMatTransparent) {
+        //        //    ToggleChainTransparency(false);
+        //        //}
+
+        //    }
+        //}
+
+        public void SetTransparencyOn() {
+            ToggleGhostTransparency(true);
+            ToggleChainTransparency(true);
+        }
+
+        public void SetTransparencyOff() {
+            ToggleGhostTransparency(false);
+            ToggleChainTransparency(false);
+        }
 
         public void ToggleGhostTransparency( bool transparent ) {
-            StartCoroutine(FadingColor(new List<Material> { ghostMaterial }, transparent ? ghostMatTransparent : ghostMatColor, fadeDuration));
+            if (fadingGhost != null) {
+                StopCoroutine(fadingGhost);
+            }
+            fadingGhost = StartCoroutine(FadingColor(new List<Material> { ghostMaterial }, transparent ? ghostMatTransparent : ghostMatColor, fadeDuration));
         }
 
         public void ToggleChainTransparency( bool transparent ) {
-            StartCoroutine(FadingColor(chainMaterials, transparent ? chainMatTransparent : chainMatColor, fadeDuration));
+            if (fadingChain != null) {
+                StopCoroutine(fadingChain);
+            }
+            fadingChain = StartCoroutine(FadingColor(chainMaterials, transparent ? chainMatTransparent : chainMatColor, fadeDuration));
         }
 
 
@@ -93,18 +128,6 @@ namespace Paperticket {
 
         }
 
-
-
-
-        // Start is called before the first frame update
-        void Start() {
-
-        }
-
-        // Update is called once per frame
-        void Update() {
-
-        }
 
     }
 

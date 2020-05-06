@@ -7,7 +7,9 @@ public class GhostAnimController : MonoBehaviour
 {
     
     private Animator animator;
-    private GhostMovement ghostMovement;
+    private GhostPerception ghostPerception;
+
+    [SerializeField] private bool debugging;
          
     void Awake() {
 
@@ -19,31 +21,33 @@ public class GhostAnimController : MonoBehaviour
         }
         
         // Grab the ghost movement reference
-        ghostMovement = ghostMovement ?? GetComponentInParent<GhostMovement>();
-        if (!ghostMovement) {
-            Debug.LogError("[GhostAnimController] ERROR -> No Ghost Movement component found on parent object! Please add one. Disabling object.");
+        ghostPerception = ghostPerception ?? GetComponentInParent<GhostPerception>();
+        if (!ghostPerception) {
+            Debug.LogError("[GhostAnimController] ERROR -> No Ghost Perception component found on parent object! Please add one. Disabling object.");
             gameObject.SetActive(false);
         }
                 
     }
 
     void OnEnable() {
-        ghostMovement.onSeePlayer += SetAngryAnimation;
-        ghostMovement.onLosePlayer += SetCalmAnimation;
+        ghostPerception.onSeePlayer += SetAngryAnimation;
+        ghostPerception.onForgottenPlayer += SetCalmAnimation;
     }
 
     void OnDisable() {
-        ghostMovement.onSeePlayer -= SetAngryAnimation;
-        ghostMovement.onLosePlayer -= SetCalmAnimation;
+        ghostPerception.onSeePlayer -= SetAngryAnimation;
+        ghostPerception.onForgottenPlayer -= SetCalmAnimation;
     }
 
 
     void SetAngryAnimation() {
         SetAnimation(true);
+        if (debugging) Debug.Log("[GhostAnimController] Setting animation to: angery! (>w<)");
     }
 
     void SetCalmAnimation() {
         SetAnimation(false);
+        if (debugging) Debug.Log("[GhostAnimController] Setting animation to: calm (uwu)");
     }
 
 

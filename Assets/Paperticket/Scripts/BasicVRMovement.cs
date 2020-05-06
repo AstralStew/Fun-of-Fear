@@ -15,7 +15,9 @@ namespace Paperticket
         Rigidbody rb;
         float LastMoveVelocity;
 
-        Vector2 input;
+        Vector3 finalInput;
+        Vector2 leftInput;
+        Vector2 rightInput;
 
         Camera camera;
 
@@ -28,7 +30,7 @@ namespace Paperticket
             float speed = GetInput();
 
             // always move along the camera forward as it is the direction that it being aimed at
-            Vector3 desiredMove = camera.transform.forward * input.y + camera.transform.right * input.x;
+            Vector3 desiredMove = camera.transform.forward * finalInput.y + camera.transform.right * finalInput.x;
 
             // get a normal for the surface that is being touched to move along it
             Physics.SphereCast(transform.position, capsuleController.radius, Vector3.down, out RaycastHit hitInfo,
@@ -46,15 +48,25 @@ namespace Paperticket
         float GetInput() {
 
             // Read input
-            float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
-            float vertical = CrossPlatformInputManager.GetAxis("Vertical");
-            input = new Vector2(horizontal, vertical);
+            float leftHorizontal = CrossPlatformInputManager.GetAxis("LeftThumbstickHorizontal");
+            float leftVertical = CrossPlatformInputManager.GetAxis("LeftThumbstickVertical");
+            float rightHorizontal = CrossPlatformInputManager.GetAxis("RightThumbstickHorizontal");
+            float rightVertical = CrossPlatformInputManager.GetAxis("RightThumbstickVertical");
 
-            // normalize input if it exceeds 1 in combined length:
-            if (input.sqrMagnitude > 1) {
-                input.Normalize();
+            leftInput = new Vector2(leftHorizontal, leftVertical);
+            rightInput = new Vector2(rightHorizontal, rightVertical);
+
+            // normalize left thumbstick input if it exceeds 1 in combined length:
+            if (leftInput.sqrMagnitude > 1) {
+                leftInput.Normalize();
             }
 
+            // normalize right thumbstick input if it exceeds 1 in combined length:
+            if (rightInput.sqrMagnitude > 1) {
+                rightInput.Normalize();
+            }
+
+            finalInput = leftInput + rightInput;
 
             //Mathf.MoveTowards(rb.velocity.magnitude, moveSpeed, moveSpeed / 10);
 
