@@ -17,6 +17,12 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: crypts 02
+    second: {fileID: -4553749278910567423, guid: 33725469ecc7c0a43b6a4c65054c3119,
+      type: 3}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: mausoleum ground
     second: {fileID: 2100000, guid: 145abf3b0c4d72040bcf5a3e196655d3, type: 2}
   - first:
