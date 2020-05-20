@@ -21,10 +21,8 @@ namespace Paperticket {
 
         public AudioMixer _ResonanceMaster;
 
-        [SerializeField] Transform headProxy;
-        [SerializeField] GameObject controllerProxy;
-        [SerializeField] Vector3 velocityTest;
-        [SerializeField] Vector3 angularTest;
+        public XRRig playerRig;
+
 
         [Header("Controls")]
 
@@ -37,26 +35,25 @@ namespace Paperticket {
         public Quaternion HeadsetRotation() {
             return Quaternion.Euler(new Vector3(0, headProxy.rotation.eulerAngles.y, 0));
         }
-
-        [HideInInspector] public bool SetupComplete;
-
+        
         enum Handedness { Left, Right, Both }
 
+        [Header("Read Only")]
         
+        public Transform headProxy;
+        public BasicVRMovement playerMovement;
+        public Transform leftController;
+        public Transform rightController;
+
+        [Space(10)]
+
+        [SerializeField] Vector3 velocityTest;
+        [SerializeField] Vector3 angularTest;
+
 
         void Awake() {
 
-            // make sure we hafve the controllers and headset aliases
-            if (headProxy == null) {
-                Debug.LogError("[PTUtilities] ERROR -> No PlayerCamera defined!");
-                enabled = false;
-            }
-            if (controllerProxy == null) {
-                Debug.LogError("[PTUtilities] ERROR -> No ControllerAlias defined!");
-                enabled = false;
-            }
-                       
-            // Create an instanced version of this script
+            // Create an instanced version of this script, or destroy it if one already exists
             if (instance == null) {
                 instance = this;
             } else if (instance != this) {
@@ -65,23 +62,53 @@ namespace Paperticket {
 
 
 
-        }
-
-        void FixedUpdate() {
-
-
-            List<XRNodeState> nodes = new List<XRNodeState>();
-            InputTracking.GetNodeStates(nodes);
-
-            foreach (XRNodeState ns in nodes) {
-                if (ns.nodeType == XRNode.RightHand) { 
-                    ns.TryGetVelocity(out velocityTest);
-                    velocityTest = new Vector3 (Mathf.Round(velocityTest.x * 100f) / 100f, Mathf.Round(velocityTest.y * 100f) / 100f, Mathf.Round(velocityTest.z * 100f) / 100f);
-                    ns.TryGetAngularVelocity(out angularTest);
-                    angularTest = new Vector3(Mathf.Round(angularTest.x * 100f) / 100f, Mathf.Round(angularTest.y * 100f) / 100f, Mathf.Round(angularTest.z * 100f) / 100f);
-                }
+            // Make sure our player rig is defined
+            if (playerRig == null) {
+                Debug.LogError("[PTUtilities] ERROR -> No Player Rig defined!");
+                enabled = false;
             }
-        }        
+
+            // Grab the player's head camera
+            headProxy = playerRig.cameraGameObject.transform;
+            if (headProxy == null) {
+                Debug.LogError("[PTUtilities] ERROR -> No Head Proxy was found!");
+                enabled = false;
+            }
+
+            // Grab both controllers (should we leave the option open for them to be found later?)
+            foreach(XRController controller in playerRig.GetComponentsInChildren<XRController>()) {
+                if (controller.controllerNode == XRNode.LeftHand) leftController = controller.transform;
+                if (controller.controllerNode == XRNode.RightHand) rightController = controller.transform;
+            }
+            if (leftController == null) { Debug.LogError("[PTUtilities] ERROR -> No Left Controller was found!"); }
+            if (rightController == null) { Debug.LogError("[PTUtilities] ERROR -> No Right Controller was found!"); }
+            
+            // Grab the player's movement script
+            playerMovement = playerRig.GetComponent<BasicVRMovement>();
+            if (playerMovement == null) {
+                Debug.LogError("[PTUtilities] ERROR -> No Player Movement was found!");
+                enabled = false;
+            }                  
+            
+        }     
+
+
+
+
+        //void FixedUpdate() {
+
+        //    List<XRNodeState> nodes = new List<XRNodeState>();
+        //    InputTracking.GetNodeStates(nodes);
+
+        //    foreach (XRNodeState ns in nodes) {
+        //        if (ns.nodeType == XRNode.RightHand) { 
+        //            ns.TryGetVelocity(out velocityTest);
+        //            velocityTest = new Vector3 (Mathf.Round(velocityTest.x * 100f) / 100f, Mathf.Round(velocityTest.y * 100f) / 100f, Mathf.Round(velocityTest.z * 100f) / 100f);
+        //            ns.TryGetAngularVelocity(out angularTest);
+        //            angularTest = new Vector3(Mathf.Round(angularTest.x * 100f) / 100f, Mathf.Round(angularTest.y * 100f) / 100f, Mathf.Round(angularTest.z * 100f) / 100f);
+        //        }
+        //    }
+        //}        
 
 
 
@@ -107,7 +134,11 @@ namespace Paperticket {
 
         }
 
+        public void SetRigToUseGravity( bool useGravity ) {
 
+            playerMovement.UseGravity = useGravity;
+
+        }
 
 
 
@@ -320,7 +351,7 @@ namespace Paperticket {
         /// <param name="toggle">True to enable, false to disable</param>
         public void ToggleControllerText( Hand hand, bool toggle ) {
 
-            controllerProxy.GetComponentInChildren<TextMeshPro>(true).gameObject.SetActive(toggle);
+            //controllerProxy.GetComponentInChildren<TextMeshPro>(true).gameObject.SetActive(toggle);
 
             //switch (hand) {
             //    case Hand.Left:

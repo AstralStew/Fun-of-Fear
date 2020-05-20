@@ -6,9 +6,7 @@ using Paperticket;
 public class CrossSceneEventHelper : MonoBehaviour
 {
     
-
-
-
+    // SCENE EVENTS
     public void LoadNextScene (string sceneName, float invokeTime ) {
         StartCoroutine(WaitThenLoadNextScene(sceneName, invokeTime));
     }
@@ -29,6 +27,14 @@ public class CrossSceneEventHelper : MonoBehaviour
         SceneUtilities.instance.FinishLoadScene(true);
         SceneUtilities.instance.UnloadScene(gameObject.scene.name);
 
+    }
+
+
+
+    // PLAYER EVENTS
+
+    public void SetPlayerGravity(bool useGravity ) {
+        PTUtilities.instance.SetRigToUseGravity(useGravity);
     }
 
     
