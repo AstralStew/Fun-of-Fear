@@ -140,7 +140,11 @@ namespace Paperticket {
 
         }
 
+        public void SetRigMovement( bool allowMovement) {
 
+            playerMovement.AllowMovement = allowMovement;
+
+        }
 
 
         // Toggle VRTK settings 

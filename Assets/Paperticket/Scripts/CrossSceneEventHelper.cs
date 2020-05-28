@@ -37,6 +37,18 @@ public class CrossSceneEventHelper : MonoBehaviour
         PTUtilities.instance.SetRigToUseGravity(useGravity);
     }
 
+    public void SetRigMovement(bool allowMovement ) {
+        PTUtilities.instance.SetRigMovement(allowMovement);
+    }
+
+
+
+    // GENERAL EVENTS
+
+    public void DestroyGameObject (GameObject objectToDestroy ) {
+        Destroy(objectToDestroy);
+    }
     
+
 
 }

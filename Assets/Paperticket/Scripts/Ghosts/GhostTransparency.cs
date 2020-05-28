@@ -6,39 +6,43 @@ namespace Paperticket {
     public class GhostTransparency : MonoBehaviour
     {
 
-        public SkinnedMeshRenderer ghostMesh;
+        public List<SkinnedMeshRenderer> ghostMeshes = new List<SkinnedMeshRenderer>();
         public List<SkinnedMeshRenderer> chainMeshes = new List<SkinnedMeshRenderer>();
 
-        [SerializeField] Material ghostMaterial;
+        [SerializeField] List<Material> ghostMaterials = new List<Material>();
         [SerializeField] List<Material> chainMaterials = new List<Material>();
 
         private GhostPerception ghostPerception;
 
         [Header("Controls")]
-        [SerializeField] float fadeDuration;
+        [SerializeField] float defaultFadeDuration = 2;
+        [SerializeField] float defaultFadeAlpha = 0.1f;
+        [SerializeField] bool debugging;
 
-        Color ghostMatColor;
-        Color ghostMatTransparent;
-        Color chainMatColor;
-        Color chainMatTransparent;
+        [Header("Read Only")]
+        [SerializeField] Color ghostMatColor;
+        //Color ghostMatTransparent;
+        [SerializeField] Color chainMatColor;
+        //Color chainMatTransparent;
 
         Coroutine fadingGhost;
         Coroutine fadingChain;
 
         void Awake() {
 
-            ghostMaterial = ghostMesh.material;
+            for (int i = 0; i < ghostMeshes.Count; i++) {
+                ghostMaterials.Add(ghostMeshes[i].material);
+            }
             for (int i = 0; i < chainMeshes.Count; i++) {
                 chainMaterials.Add(chainMeshes[i].material);
             }
 
-            ghostMatColor = ghostMaterial.color;
-            ghostMatTransparent = new Color(ghostMatColor.r, ghostMatColor.g, ghostMatColor.b, 0.1f);
-
+            ghostMatColor = ghostMaterials[0].color;
             chainMatColor = chainMaterials[0].color;
-            chainMatTransparent = new Color(chainMatColor.r, chainMatColor.g, chainMatColor.b, 0.1f);
 
-            //StartCoroutine(TestingTransparency());
+            //ghostMatTransparent = new Color(ghostMatColor.r, ghostMatColor.g, ghostMatColor.b, defaultFadeAlpha);
+            //chainMatTransparent = new Color(chainMatColor.r, chainMatColor.g, chainMatColor.b, defaultFadeAlpha);
+
             // Grab the ghost movement reference
             ghostPerception = ghostPerception ?? GetComponentInParent<GhostPerception>();
             if (!ghostPerception) {
@@ -49,16 +53,15 @@ namespace Paperticket {
         }
 
         void OnEnable() {
-            ghostPerception.onSeePlayer += SetTransparencyOff;
-            ghostPerception.onForgottenPlayer += SetTransparencyOn;
+            ghostPerception.onSeePlayer += FadeIn;
+            ghostPerception.onForgottenPlayer += FadeOut;
 
-            ToggleGhostTransparency(true);
-            ToggleChainTransparency(true);
+            FadeOut(0.1f);
         }
 
         void OnDisable() {
-            ghostPerception.onSeePlayer -= SetTransparencyOff;
-            ghostPerception.onForgottenPlayer -= SetTransparencyOn;
+            ghostPerception.onSeePlayer -= FadeIn;
+            ghostPerception.onForgottenPlayer -= FadeOut;
         }
 
         //IEnumerator TestingTransparency() {
@@ -83,48 +86,94 @@ namespace Paperticket {
         //    }
         //}
 
-        public void SetTransparencyOn() {
-            ToggleGhostTransparency(true);
-            ToggleChainTransparency(true);
+        public void FadeOut() {
+            if (debugging) Debug.Log("[GhostTransparency] Fading out!");
+            SetGhostTransparency(defaultFadeAlpha, defaultFadeDuration);
+            SetChainTransparency(defaultFadeAlpha, defaultFadeDuration);
+        }
+        public void FadeOut( float fadeTime ) {
+            if (debugging) Debug.Log("[GhostTransparency] Fading out!*");
+            SetGhostTransparency(defaultFadeAlpha, fadeTime);
+            SetChainTransparency(defaultFadeAlpha, fadeTime);
         }
 
-        public void SetTransparencyOff() {
-            ToggleGhostTransparency(false);
-            ToggleChainTransparency(false);
+        public void FadeOutTotal() {
+            if (debugging) Debug.Log("[GhostTransparency] Fading out completely!");
+            SetGhostTransparency(0f, defaultFadeDuration);
+            SetChainTransparency(0f, defaultFadeDuration);
+        }
+        public void FadeOutTotal( float fadeTime ) {
+            if (debugging) Debug.Log("[GhostTransparency] Fading out completely!*");
+            SetGhostTransparency(0f, fadeTime);
+            SetChainTransparency(0f, fadeTime);
         }
 
-        public void ToggleGhostTransparency( bool transparent ) {
+
+        public void FadeIn() {
+            if (debugging) Debug.Log("[GhostTransparency] Fading in!");
+            SetGhostTransparency(ghostMatColor.a, defaultFadeDuration);
+            SetChainTransparency(ghostMatColor.a, defaultFadeDuration);
+        }
+        public void FadeIn( float fadeTime ) {
+            if (debugging) Debug.Log("[GhostTransparency] Fading in!*");
+            SetGhostTransparency(ghostMatColor.a, fadeTime);
+            SetChainTransparency(ghostMatColor.a, fadeTime);
+        }
+
+        public void FadeInTotal() {
+            if (debugging) Debug.Log("[GhostTransparency] Fading in completely!");
+            SetGhostTransparency(1f, defaultFadeDuration);
+            SetChainTransparency(1f, defaultFadeDuration);
+        }
+        public void FadeInTotal( float fadeTime ) {
+            if (debugging) Debug.Log("[GhostTransparency] Fading in completely!*");
+            SetGhostTransparency(1f, fadeTime);
+            SetChainTransparency(1f, fadeTime);
+        }
+
+
+
+        void SetGhostTransparency( float alpha, float fadeDuration ) {
             if (fadingGhost != null) {
+                if (debugging) Debug.Log("[GhostTransparency] Stopping existing fade...");
                 StopCoroutine(fadingGhost);
             }
-            fadingGhost = StartCoroutine(FadingColor(new List<Material> { ghostMaterial }, transparent ? ghostMatTransparent : ghostMatColor, fadeDuration));
+            Color newColor = new Color(ghostMatColor.r, ghostMatColor.g, ghostMatColor.b, alpha);
+            fadingGhost = StartCoroutine(FadingColor(ghostMaterials, newColor, fadeDuration));
         }
 
-        public void ToggleChainTransparency( bool transparent ) {
+        void SetChainTransparency( float alpha, float fadeDuration ) {
             if (fadingChain != null) {
+                if (debugging) Debug.Log("[GhostTransparency] Stopping existing fade...");
                 StopCoroutine(fadingChain);
             }
-            fadingChain = StartCoroutine(FadingColor(chainMaterials, transparent ? chainMatTransparent : chainMatColor, fadeDuration));
+            Color newColor = new Color(chainMatColor.r, chainMatColor.g, chainMatColor.b, alpha);
+            fadingChain = StartCoroutine(FadingColor(chainMaterials, newColor, fadeDuration));
         }
+
+
 
 
         IEnumerator FadingColor( List<Material> materials, Color color, float fadeTime ) {
+            if (debugging) Debug.Log("[GhostTransparency] Fading to Color(" + color + ") over " + fadeTime +" seconds");
 
-            Color initialColor = materials[0].GetColor("_Color");
+            Color initialColor = materials[0].GetColor("_BaseColor");
 
             for (float t = 0.0f; t < 1.0f; t += Time.deltaTime / fadeTime) {
                 foreach (Material mat in materials) {
                     Color newColor = Color.Lerp(initialColor, color, t);
-                    mat.color = newColor;
+                    mat.SetColor("_BaseColor", newColor);
                     //mat.SetColor("_Color", newColor);
                 }
                 yield return null;
             }
 
             foreach (Material mat in materials) {
-                //mat.SetColor("_Color", color);
-                mat.color = color;
+                mat.SetColor("_BaseColor", color);
+               // mat.color = color;
             }
+
+            if (debugging) Debug.Log("[GhostTransparency] Finished fading!");
 
         }
 

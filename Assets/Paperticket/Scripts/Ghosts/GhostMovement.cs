@@ -92,11 +92,13 @@ namespace Paperticket {
             ghostPerception.onSeePlayer += StartChasingPlayer;
             ghostPerception.onLosePlayer += StartSearchingForPlayer;
             ghostPerception.onForgottenPlayer += StartWandering;
+            ghostPerception.onReachPlayer += StartScaringPlayer;
         }
         private void OnDisable() {
             ghostPerception.onSeePlayer -= StartChasingPlayer;
             ghostPerception.onLosePlayer -= StartSearchingForPlayer;
             ghostPerception.onForgottenPlayer -= StartWandering;
+            ghostPerception.onReachPlayer -= StartScaringPlayer;
         }
 
         void Start() {
@@ -333,6 +335,36 @@ namespace Paperticket {
             PickNewWaypoint();
 
         }
+
+
+        /// REACH PLAYER FUNCTIONS
+
+        void StartScaringPlayer() {
+            if (debugging) Debug.Log("[GhostMovement] I have caught the player, time to scare them!! (nwn)");
+
+            agent.isStopped = true;
+            agent.speed = 0;
+            agent.angularSpeed = wanderingAngularSpeed;
+            agent.autoBraking = false;
+            
+            StopAllCoroutines();
+
+            currentCoroutine = StartCoroutine(ScaringPlayer());
+
+        }
+
+        IEnumerator ScaringPlayer() {
+            
+            // Rotate to face the player's heading
+            agent.SetDestination(ghostPerception.RealPlayerPosition);
+            yield return StartCoroutine(TurningToTargetDirection());
+            if (debugging) Debug.Log("[GhostMovement] Finished turning to player!");
+
+            // Remain stopped until the escape animations has played
+            
+        }
+
+
 
 
         /// UNIVERSAL FUNCTIONS

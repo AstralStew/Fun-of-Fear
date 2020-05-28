@@ -8,9 +8,8 @@ OcclusionCullingSettings:
     smallestOccluder: 5
     smallestHole: 0.25
     backfaceThreshold: 100
-  m_SceneGUID: 0134d0e0b924d2c45bf252c032baf8f3
-  m_OcclusionCullingData: {fileID: 36300000, guid: fb56deb84384bfa45b91974db6693e8e,
-    type: 2}
+  m_SceneGUID: 00000000000000000000000000000000
+  m_OcclusionCullingData: {fileID: 0}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -122,7 +121,7 @@ NavMeshSettings:
     accuratePlacement: 0
     debug:
       m_Flags: 0
-  m_NavMeshData: {fileID: 0}
+  m_NavMeshData: {fileID: 23800000, guid: a564d3bd50d08654b950ee0da114db2f, type: 2}
 --- !u!1 &23837023
 GameObject:
   m_ObjectHideFlags: 0
@@ -600,12 +599,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 208904316}
   m_LocalRotation: {x: 1.6624314e-10, y: -0.97002023, z: 2.692104e-10, w: 0.2430244}
-  m_LocalPosition: {x: 106.96, y: 0.801, z: 61.62}
+  m_LocalPosition: {x: -136.722, y: 0.26, z: -155.802}
   m_LocalScale: {x: 1.0000002, y: 1, z: 1.0000002}
   m_Children:
   - {fileID: 1959904120}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &208904319
 CapsuleCollider:
@@ -634,10 +633,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   capsuleCollider: {fileID: 208904319}
+  moveSpeed: 0.04
+  groundCastHeight: 2
   groundLayers:
     serializedVersion: 2
     m_Bits: 55
-  moveSpeed: 0.04
+  minBodyHeight: 0.5
+  maxBodyHeight: 2
+  debugging: 0
+  framedebugging: 0
+  groundPos: {x: 0, y: 0, z: 0}
+  finalInput: {x: 0, y: 0, z: 0}
+  AllowMovement: 0
 --- !u!54 &208904321
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -992,6 +999,36 @@ MonoBehaviour:
   m_AnimateModel: 0
   m_ModelSelectTransition: 
   m_ModelDeSelectTransition: 
+--- !u!1 &900809568
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 900809569}
+  m_Layer: 8
+  m_Name: Start
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &900809569
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900809568}
+  m_LocalRotation: {x: 1.6624314e-10, y: -0.97002023, z: 2.692104e-10, w: 0.2430244}
+  m_LocalPosition: {x: 106.96, y: 0.801, z: 61.62}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1017668460
 GameObject:
   m_ObjectHideFlags: 0
@@ -1022,7 +1059,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _LoadFirstScene: 1
-  _FirstSceneName: EstateScene
+  _FirstSceneName: Pathfinding
   _Debug: 0
 --- !u!4 &1017668462
 Transform:

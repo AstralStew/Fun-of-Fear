@@ -7,7 +7,6 @@ namespace Paperticket {
     {
         [Header("References")]
 
-        [SerializeField] private Transform targetPlayer;
         [SerializeField] private Transform sightTransform;
 
         [Header("Controls")]
@@ -18,13 +17,16 @@ namespace Paperticket {
         [SerializeField] private LayerMask targetLayers;
         [SerializeField] private float sightCheckFrequency;         // How long to wait between checks to see if we can see the player
         [SerializeField] private float searchingDuration;           // How long to continue searching for the player after losing them
+        [SerializeField] private float reachRange;                  // How close the player must be to be caught by the ghost
 
         [SerializeField] private bool debugging;
         [SerializeField] private bool framedebugging;
 
         [Header("Read Only")]
 
+        [SerializeField] private Transform targetPlayer;
         [SerializeField] private bool canSeePlayer;
+        [SerializeField] private bool hasReachedPlayer;
 
         private Vector3 lastSeenPlayerPos;                          // The position of the player the last time we saw them
         public Vector3 LastPlayerPosition {
@@ -49,6 +51,9 @@ namespace Paperticket {
         public delegate void OnForgottenPlayer();
         public event OnForgottenPlayer onForgottenPlayer;
 
+        public delegate void OnReachPlayer();
+        public event OnReachPlayer onReachPlayer;
+
         private Coroutine searchingCoroutine;
 
 
@@ -60,33 +65,37 @@ namespace Paperticket {
                 gameObject.SetActive(false);
             }
 
-            // Grab the sight transform reference            
-            if (!targetPlayer) {
-                Debug.LogError("[GhostPerception] ERROR -> No TargetPlayer found on this object! Please add one. Disabling object.");
-                gameObject.SetActive(false);
-            }
+            StartCoroutine(Setup());
 
         }
+        IEnumerator Setup() {
+            if (debugging) Debug.Log("[GhostPerception] Starting setup...");
 
-        void Start() {
+            // Grab the player reference            
+            while (!targetPlayer) {
+                if (framedebugging) Debug.Log("[GhostPerception] Searching for player object...");
+                targetPlayer = PTUtilities.instance.headProxy;
+                yield return null;
+            }
+            if (framedebugging) Debug.Log("[GhostPerception] Player found!");
+
+            hasReachedPlayer = false;
+
+            if (debugging) Debug.Log("[GhostPerception] Completed setup!");
 
             StartCoroutine(CheckForPlayer());
 
         }
 
 
+
         //private void OnTriggerEnter( Collider other ) {
 
         //    // Make a perception check if a player collider is detected
-        //    if (targetLayers == (targetLayers | (1 << other.gameObject.layer))) {
-
-                
+        //    if (targetLayers == (targetLayers | (1 << other.gameObject.layer))) {                
 
         //    }
         //}
-
-
-
 
 
         /// PERCEPTION FUNCTIONS        
@@ -94,19 +103,31 @@ namespace Paperticket {
             Vector3 dir;
             Color col = Color.red;
             
-            while (true) {
-
-                // Get the direction to the player from the sight transform
-                //dir = targetPlayer.position - sightTransform.position;
-                // NOTE - now done with public RealDirectionToPlayer
-
+            while (!hasReachedPlayer) {
+                
                 // Bail if the player is too far away
                 if (canSeePlayer || RealDirectionToPlayer.magnitude <= sightRange) {
                     if (framedebugging) Debug.Log("[GhostPerception] Current range from player: " + (int)RealDirectionToPlayer.magnitude);
 
+                    
                     // Bail if the player is outside of the max sight angle
                     if (canSeePlayer || Vector3.Angle(sightTransform.forward, RealDirectionToPlayer) <= sightMaxAngle) {
                         if (framedebugging) Debug.Log("[GhostPerception] Current angle to player: " + (int)Vector3.Angle(sightTransform.forward, RealDirectionToPlayer));
+
+
+                        // Check if we've reached the player and stop searching
+                        if (RealDirectionToPlayer.magnitude <= reachRange) {
+                            if (debugging) Debug.Log("[GhostPerception] I CAUGHT THE PLAYER!! (^w^)");
+
+                            onReachPlayer();
+                            hasReachedPlayer = true;
+
+                            if (searchingCoroutine != null) {
+                                StopCoroutine(searchingCoroutine);
+                                if (debugging) Debug.Log("[GhostPerception] The 'Searching for lost player' coroutine was running, stopping it now.");
+                            }
+                            continue;
+                        }
 
                         // Shoot a SphereCast towards the player position (to allow crouching behind things etc.)
                         RaycastHit raycastHit = new RaycastHit();
@@ -171,7 +192,7 @@ namespace Paperticket {
 
         IEnumerator SearchingCoroutine() {
 
-            if (debugging) Debug.Log("[GhostPerception] Searching to find the player I lost!");
+            if (debugging) Debug.Log("[GhostPerception] Searching to find the player I lost! (>->)");
 
             // Spend an amount of time still searching for the player
             yield return new WaitForSeconds(searchingDuration);
