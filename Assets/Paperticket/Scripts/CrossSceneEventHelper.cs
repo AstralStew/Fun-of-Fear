@@ -32,15 +32,16 @@ public class CrossSceneEventHelper : MonoBehaviour
 
 
     // PLAYER EVENTS
-
-    public void SetPlayerGravity(bool useGravity ) {
-        PTUtilities.instance.SetRigToUseGravity(useGravity);
+    
+    public bool PlayerUsesGravity {
+        get { return PTUtilities.instance.PlayerUsesGravity; }
+        set { PTUtilities.instance.PlayerUsesGravity = value; }
     }
 
-    public void SetRigMovement(bool allowMovement ) {
-        PTUtilities.instance.SetRigMovement(allowMovement);
+    public bool PlayerCanMove {
+        get { return PTUtilities.instance.PlayerCanMove; }
+        set { PTUtilities.instance.PlayerCanMove = value; }
     }
-
 
 
     // GENERAL EVENTS

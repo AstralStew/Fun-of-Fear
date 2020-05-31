@@ -22,6 +22,7 @@ namespace Paperticket
         [SerializeField] LayerMask groundLayers;
         [SerializeField] float minBodyHeight = 0.5f;
         [SerializeField] float maxBodyHeight = 2f;
+        [SerializeField] float bodyHeightOffset = 0.05f;
 
         [Space(10)]
         [SerializeField] bool debugging;
@@ -29,7 +30,7 @@ namespace Paperticket
 
         [Header("Read Only")]
 
-        [SerializeField] Vector3 groundPos;
+        //[SerializeField] Vector3 groundPos;
 
         [SerializeField] Vector3 finalInput;
         Vector2 leftInput;
@@ -160,7 +161,7 @@ namespace Paperticket
             desiredMove = Vector3.ProjectOnPlane(desiredMove, hitInfo.normal);
 
             // Save out the ground position for other calculations
-            groundPos = hitInfo.point;
+            //groundPos = hitInfo.point;
 
             // Move to a new position based on all the above
             Vector3 newPosition = rb.position + (speed * new Vector3(desiredMove.x, 0, desiredMove.z));
@@ -172,20 +173,16 @@ namespace Paperticket
         
         void ResizeBody() {
             if (framedebugging) Debug.Log("[BasicVRMovement] Entering ResizeBody...");
+            
+            float height = capsuleCollider.height = playerRig.cameraInRigSpaceHeight;
 
-            Vector3 camPos = headCamera.transform.position;
-
-            // The minimum height for capsule collider is restricted to the bottom of the play area
-            // This allows the player to walk off surfaces without their body stretching to the ground
-            Vector3 heightMin = (groundPos.y > playerRig.transform.position.y) ? groundPos : playerRig.transform.position;
-            float height = Mathf.Clamp(camPos.y - heightMin.y, minBodyHeight, maxBodyHeight);
 
             // Set the body height and center
             capsuleCollider.height = height;
             capsuleCollider.center = playerRig.cameraInRigSpacePos - new Vector3(0, height / 2, 0);
             
-            if (framedebugging) Debug.Log("[BasicVRMovement] Body height = " + capsuleCollider.height + Environment.NewLine +
-                                          "[BasicVRMovement] Body height minimum = " + heightMin + Environment.NewLine +
+            if (framedebugging) Debug.Log("[BasicVRMovement] Body clamped height = " + capsuleCollider.height + Environment.NewLine +
+                                          "[BasicVRMovement] Body  height = " + height + Environment.NewLine +
                                           "[BasicVRMovement] Body center = " + capsuleCollider.center);
 
             if (framedebugging) Debug.Log("[BasicVRMovement] ResizeBody complete!");
@@ -196,3 +193,16 @@ namespace Paperticket
 
 
 }
+
+
+
+//Vector3 camPos = headCamera.transform.position;
+
+// The height of the capsule collider is restricted to the bottom of the play area
+// This allows the player to walk off surfaces without their body stretching to the ground
+
+//float height = Mathf.Max(groundPos.y, playerRig.transform.position.y);
+//float clampedHeight = Mathf.Clamp(camPos.y - height + bodyHeightOffset, minBodyHeight, maxBodyHeight);            //Vector3 clampedHeight = (groundPos.y > playerRig.transform.position.y) ? groundPos : playerRig.transform.position;
+
+
+//capsuleCollider.height = clampedHeight;

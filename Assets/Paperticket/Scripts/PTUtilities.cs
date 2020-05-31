@@ -51,6 +51,26 @@ namespace Paperticket {
         [SerializeField] Vector3 angularTest;
 
 
+        // Header: Public Variables
+        public bool PlayerUsesGravity {
+            get { return playerMovement.UseGravity; }
+            set { playerMovement.UseGravity = value; }
+        }
+
+        public bool PlayerCanMove {
+            get { return playerMovement.AllowMovement; }
+            set { playerMovement.AllowMovement = value; }
+        }
+
+
+
+
+
+
+
+
+
+
         void Awake() {
 
             // Create an instanced version of this script, or destroy it if one already exists
@@ -134,17 +154,9 @@ namespace Paperticket {
 
         }
 
-        public void SetRigToUseGravity( bool useGravity ) {
 
-            playerMovement.UseGravity = useGravity;
 
-        }
 
-        public void SetRigMovement( bool allowMovement) {
-
-            playerMovement.AllowMovement = allowMovement;
-
-        }
 
 
         // Toggle VRTK settings 
