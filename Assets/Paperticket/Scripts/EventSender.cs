@@ -5,10 +5,16 @@ using UnityEngine.Events;
 
 public class EventSender : MonoBehaviour
 {
+    [SerializeField] bool debugging;
 
+    [Header("Trigger Controls")]
+    [SerializeField] bool requireTriggerEnter;
+    [SerializeField] LayerMask triggerLayers;
+
+    [Header("Time Controls")]
     [SerializeField] float timeBeforeEvent;
     [SerializeField] bool OneTimeUse = true;
-    [SerializeField] bool debug;
+
 
     bool used;
 
@@ -16,22 +22,32 @@ public class EventSender : MonoBehaviour
 
     [SerializeField] UnityEvent OnEventTriggered;
 
+    
+
     // Start is called before the first frame update
     void OnEnable() {
-        StartCountdownToEvent();      
+        if (!requireTriggerEnter) {
+            StartCountdownToEvent();
+        }
+    }
+
+    public void OnTriggerEnter( Collider other ) {
+        if (((1 << other.gameObject.layer) & triggerLayers) != 0) {
+            StartCountdownToEvent();
+        }
     }
 
     public void StartCountdownToEvent() {
         if (!(OneTimeUse && used)) {
             StartCoroutine(CountdownToEvent());
         } else {
-            if (debug) Debug.Log("[EventSender] This event is set to OneTimeUse and has already been used, disabling self");
+            if (debugging) Debug.Log("[EventSender] This event is set to OneTimeUse and has already been used, disabling self");
             enabled = false;
         }
     }
 
     IEnumerator CountdownToEvent() {
-        if (debug) Debug.Log("[EventSender] Counting down event...");
+        if (debugging) Debug.Log("[EventSender] Counting down event...");
 
         used = false;
 
@@ -39,13 +55,13 @@ public class EventSender : MonoBehaviour
 
         // Trigger the event
         if (OnEventTriggered != null) {
-            if (debug) Debug.Log("[EventSender] OnEventTriggered called!");
+            if (debugging) Debug.Log("[EventSender] OnEventTriggered called!");
             OnEventTriggered.Invoke();
         }
 
         // Destroy this script if this is a one time use, otherwise reset
         if (OneTimeUse) {
-            if (debug) Debug.Log("[EventSender] This event is set to OneTimeUse, disabling self");
+            if (debugging) Debug.Log("[EventSender] This event is set to OneTimeUse, disabling self");
             enabled = false;
         } 
 

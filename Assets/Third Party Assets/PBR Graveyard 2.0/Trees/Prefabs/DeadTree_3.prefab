@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 121042}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.48892853, y: 0.4889286, z: 0.48892865}
+  m_LocalScale: {x: 0.48892865, y: 0.48892874, z: 0.48892868}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -186,7 +186,7 @@ Material:
   m_Name: Optimized Leaf Material
   m_Shader: {fileID: 4800000, guid: 99134b1f0c27d54469a840832a28fadf, type: 3}
   m_ShaderKeywords: _WINDQUALITY_NONE
-  m_LightmapFlags: 5
+  m_LightmapFlags: 6
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -195,12 +195,20 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 29558f86dbebaca439e9c0dfd01a110b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpSpecMap:
         m_Texture: {fileID: 2800000, guid: 2e55161bb7d901742b9fc4789ad79abb, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ExtraTex:
@@ -211,8 +219,20 @@ Material:
         m_Texture: {fileID: 2800000, guid: 29558f86dbebaca439e9c0dfd01a110b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _ShadowTex:
         m_Texture: {fileID: 2800000, guid: 3a3a6239270f2f848aa9b7d24911c40b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SubsurfaceTex:
@@ -224,24 +244,45 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AlphaClip: 0
     - _BillboardKwToggle: 0
     - _BillboardShadowFade: 0.5
+    - _Blend: 0
+    - _BumpScale: 1
+    - _Cull: 2
     - _Cutoff: 0.27
+    - _DstBlend: 0
+    - _EnvironmentReflections: 1
+    - _GlossMapScale: 0
     - _Glossiness: 0
+    - _GlossyReflections: 0
     - _HueVariationKwToggle: 0
     - _Metallic: 0
     - _NormalMapKwToggle: 0
+    - _OcclusionStrength: 1
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
     - _ShadowOffsetScale: 1
     - _ShadowStrength: 0.8
+    - _Smoothness: 0.5
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
     - _SquashAmount: 1
+    - _SrcBlend: 1
     - _SubsurfaceIndirect: 0.25
     - _SubsurfaceKwToggle: 0
+    - _Surface: 0
     - _TranslucencyViewDependency: 0.7
     - _TwoSided: 2
     - _WindQuality: 0
+    - _WorkflowMode: 1
+    - _ZWrite: 1
     m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _HueVariationColor: {r: 1, g: 0.5, b: 0, a: 0.1}
+    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _SubsurfaceColor: {r: 1, g: 1, b: 1, a: 1}
     - _TranslucencyColor: {r: 0.18696915, g: 0.2205882, b: 0.09731833, a: 1}
     - _TreeInstanceColor: {r: 1, g: 1, b: 1, a: 1}
@@ -534,17 +575,17 @@ MonoBehaviour:
     rootSpread: 0.92
     groundOffset: 0.69
     rootMatrix:
-      e00: 0.19037326
-      e01: 0.025972946
-      e02: -0.9813681
+      e00: 0.19037314
+      e01: 0.02597292
+      e02: -0.9813682
       e03: 0
-      e10: 0.17836748
+      e10: 0.1783675
       e11: 0.9820965
-      e12: 0.060593296
+      e12: 0.060593255
       e13: 0
       e20: 0.965372
-      e21: -0.1865795
-      e22: 0.18233216
+      e21: -0.18657951
+      e22: 0.18233207
       e23: 0
       e30: 0
       e31: 0
@@ -1710,17 +1751,17 @@ MonoBehaviour:
     pitch: -0
     rotation: {x: 0, y: 0, z: 0, w: 1}
     matrix:
-      e00: 0.19037326
-      e01: 0.025972946
-      e02: -0.9813681
+      e00: 0.19037314
+      e01: 0.02597292
+      e02: -0.9813682
       e03: 0
-      e10: 0.17836748
+      e10: 0.1783675
       e11: 0.9820965
-      e12: 0.060593296
+      e12: 0.060593255
       e13: 0
       e20: 0.965372
-      e21: -0.1865795
-      e22: 0.18233216
+      e21: -0.18657951
+      e22: 0.18233207
       e23: 0
       e30: 0
       e31: 0
