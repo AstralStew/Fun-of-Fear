@@ -1059,7 +1059,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4c2b15f7542c4f43b671b7387bcf78e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _LoadFirstScene: 1
+  _LoadFirstScene: 0
   _FirstSceneName: EstateScene
   _Debug: 0
 --- !u!4 &1017668462
