@@ -911,7 +911,7 @@ MonoBehaviour:
   maxWaitDuration: 8
   destinationCheckFreq: 0.25
   wanderingTurnPauseDuration: 0.75
-  chasingSpeed: 1.3
+  chasingSpeed: 2
   chasingAngularSpeed: 130
   chasingTurnPauseDuration: 4
   turnPauseVariance: 1
@@ -3577,7 +3577,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7205421675165184606}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7205421673602834734}
@@ -3717,7 +3717,7 @@ MonoBehaviour:
   ghostMaterials: []
   chainMaterials: []
   defaultFadeDuration: 2
-  defaultFadeAlpha: 0.1
+  defaultFadeAlpha: 0.4
   debugging: 1
   ghostMatColor: {r: 0, g: 0, b: 0, a: 0}
   chainMatColor: {r: 0, g: 0, b: 0, a: 0}
