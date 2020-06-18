@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 100000, guid: 181dbba6a2db4e54cb88a919552aad5a, type: 3}
       propertyPath: m_Name
-      value: wallhang002 (2)
+      value: wallhang002 (2) Variant
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 181dbba6a2db4e54cb88a919552aad5a, type: 3}
       propertyPath: m_StaticEditorFlags
