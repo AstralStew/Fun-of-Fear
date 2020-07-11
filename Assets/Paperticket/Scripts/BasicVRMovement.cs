@@ -123,7 +123,8 @@ namespace Paperticket
             float rightVertical = CrossPlatformInputManager.GetAxis("RightThumbstickVertical");
 
             leftInput = new Vector2(leftHorizontal, leftVertical);
-            rightInput = new Vector2(rightHorizontal, rightVertical);
+            //rightInput = new Vector2(rightHorizontal, rightVertical);
+            rightInput = new Vector2(0, 0.5f * rightVertical);
 
             // normalize left thumbstick input if it exceeds 1 in combined length:
             if (leftInput.sqrMagnitude > 1) {
@@ -174,13 +175,13 @@ namespace Paperticket
         void ResizeBody() {
             if (framedebugging) Debug.Log("[BasicVRMovement] Entering ResizeBody...");
             
-            float height = capsuleCollider.height = playerRig.cameraInRigSpaceHeight;
+            float height = playerRig.cameraInRigSpaceHeight;
 
 
             // Set the body height and center
-            capsuleCollider.height = height;
-            capsuleCollider.center = playerRig.cameraInRigSpacePos - new Vector3(0, height / 2, 0);
-            
+            capsuleCollider.height = height; // - bodyHeightOffset; // height;
+            capsuleCollider.center = playerRig.cameraInRigSpacePos - (Vector3.up * height / 2); //+ (Vector3.up * (bodyHeightOffset / 2))
+
             if (framedebugging) Debug.Log("[BasicVRMovement] Body clamped height = " + capsuleCollider.height + Environment.NewLine +
                                           "[BasicVRMovement] Body  height = " + height + Environment.NewLine +
                                           "[BasicVRMovement] Body center = " + capsuleCollider.center);

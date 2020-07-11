@@ -21,6 +21,7 @@ namespace Paperticket {
 
         [SerializeField] private float wanderingSpeed;
         [SerializeField] private float wanderingAngularSpeed;
+        [SerializeField] private float wanderingAcceleration;
 
         [SerializeField] private float minWaitDuration;
         [SerializeField] private float maxWaitDuration;
@@ -31,6 +32,8 @@ namespace Paperticket {
 
         [SerializeField] private float chasingSpeed;
         [SerializeField] private float chasingAngularSpeed;
+        [SerializeField] private float chasingAcceleration;
+
         [SerializeField] private float chasingTurnPauseDuration;           // How long to wait after turning towards a new wandering path
         [SerializeField] private float turnPauseVariance;
 
@@ -111,6 +114,7 @@ namespace Paperticket {
         /// CHASING FUNCTIONS
 
         void StartChasingPlayer() {
+            if (ghostPerception.HasReachedPlayer) return;
             if (debugging) Debug.Log("[GhostMovement] Aight, I'm gonna start chasing the player now (^w^) ");
 
             lostPlayer = false;
@@ -125,6 +129,7 @@ namespace Paperticket {
 
         }
         void StartSearchingForPlayer() {
+            if (ghostPerception.HasReachedPlayer) return;
             if (debugging) Debug.Log("[GhostMovement] Gotta try and catch up to where they were! (>_<) ");
 
             //if (currentCoroutine != null) {
@@ -138,6 +143,7 @@ namespace Paperticket {
             currentCoroutine = StartCoroutine(Searching());
         }
         void StartWandering() {
+            if (ghostPerception.HasReachedPlayer) return;
             if (debugging) Debug.Log("[GhostMovement] I'm going back to wandering, this is boring (>->) ");
 
             StopAllCoroutines();
@@ -150,7 +156,8 @@ namespace Paperticket {
             agent.isStopped = false;
             agent.speed = chasingSpeed;
             agent.angularSpeed = chasingAngularSpeed;
-            agent.autoBraking = false;
+            agent.acceleration = chasingAcceleration;
+            agent.autoBraking = true;
 
             while (!lostPlayer) {
                 
@@ -291,6 +298,7 @@ namespace Paperticket {
             agent.isStopped = false;
             agent.speed = wanderingSpeed;
             agent.angularSpeed = wanderingAngularSpeed;
+            agent.acceleration = wanderingAcceleration;
             agent.autoBraking = true;
 
             // DESTINATION CHECK
@@ -344,7 +352,8 @@ namespace Paperticket {
 
             agent.isStopped = true;
             agent.speed = 0;
-            agent.angularSpeed = wanderingAngularSpeed;
+            agent.angularSpeed = chasingAngularSpeed;
+            //agent.acceleration = 0;
             agent.autoBraking = false;
             
             StopAllCoroutines();
@@ -354,10 +363,11 @@ namespace Paperticket {
         }
 
         IEnumerator ScaringPlayer() {
-            
+
             // Rotate to face the player's heading
-            agent.SetDestination(ghostPerception.RealPlayerPosition);
-            yield return StartCoroutine(TurningToTargetDirection());
+            //agent.SetDestination(ghostPerception.RealPlayerPosition);
+            Destroy(agent);
+            yield return StartCoroutine(TurningToFacePlayer());
             if (debugging) Debug.Log("[GhostMovement] Finished turning to player!");
 
             // Remain stopped until the escape animations has played
@@ -403,6 +413,40 @@ namespace Paperticket {
             if (debugging) Debug.Log("[GhostMovement] Rotated successfully!");
 
         }
+
+
+
+        IEnumerator TurningToFacePlayer() {
+
+            //agent.isStopped = true;
+
+            if (debugging) Debug.Log("[GhostMovement] Turning to face player..");
+
+            // Get the rotation to face the target direction        
+            Quaternion lookRotation = Quaternion.LookRotation((PTUtilities.instance.HeadsetPosition() - transform.position).normalized, Vector3.up);
+
+            if (debugging) Debug.Log("[GhostMovement] Look rotation = " + lookRotation.eulerAngles);
+
+            float initialAngle = Quaternion.Angle(transform.rotation, lookRotation);
+
+            // Continue once the angle to the target direction is acceptable
+            while (Quaternion.Angle(transform.rotation, lookRotation) > 0.25) {
+
+                if (framedebugging) Debug.Log("[GhostMovement] Initial angle = " + initialAngle);
+                if (framedebugging) Debug.Log("[GhostMovement] Current angle = " + Quaternion.Angle(transform.rotation, lookRotation));
+
+                smoothing = chasingAngularSpeed;
+
+                // Rotate towards the target direction
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, lookRotation, smoothing * Time.deltaTime);
+
+                yield return null;
+            }
+
+            if (debugging) Debug.Log("[GhostMovement] Rotated successfully!");
+
+        }
+
 
     }
 

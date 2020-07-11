@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Paperticket {
     public class GhostPerception : MonoBehaviour
@@ -26,7 +27,8 @@ namespace Paperticket {
 
         [SerializeField] private Transform targetPlayer;
         [SerializeField] private bool canSeePlayer;
-        [SerializeField] private bool hasReachedPlayer;
+        [SerializeField] bool hasReachedPlayer;
+        public bool HasReachedPlayer { get { return hasReachedPlayer; } }
 
         private Vector3 lastSeenPlayerPos;                          // The position of the player the last time we saw them
         public Vector3 LastPlayerPosition {
@@ -55,6 +57,9 @@ namespace Paperticket {
         public event OnReachPlayer onReachPlayer;
 
         private Coroutine searchingCoroutine;
+
+
+        public UnityEvent SeePlayerEvents;
 
 
         // Start is called before the first frame update
@@ -116,11 +121,13 @@ namespace Paperticket {
 
 
                         // Check if we've reached the player and stop searching
-                        if (RealDirectionToPlayer.magnitude <= reachRange) {
+                        if (canSeePlayer && RealDirectionToPlayer.magnitude <= reachRange) {
                             if (debugging) Debug.Log("[GhostPerception] I CAUGHT THE PLAYER!! (^w^)");
 
-                            onReachPlayer();
+                            onReachPlayer.Invoke();
                             hasReachedPlayer = true;
+                            SeePlayerEvents.Invoke();
+                            //canSeePlayer = true;
 
                             if (searchingCoroutine != null) {
                                 StopCoroutine(searchingCoroutine);
@@ -144,7 +151,8 @@ namespace Paperticket {
                                         Debug.Log("[GhostPerception] HEY I just saw the player! (0w0)");
                                     }
 
-                                    onSeePlayer();
+                                    onSeePlayer.Invoke();
+                                    SeePlayerEvents.Invoke();
                                     canSeePlayer = true;
 
                                     if (searchingCoroutine != null) {
@@ -154,22 +162,23 @@ namespace Paperticket {
                                 }
 
                                 // Trigger an event if we have just lost the player
-                            } else if (canSeePlayer) {
-                                if (debugging) {
-                                    col = Color.red;
-                                    Debug.Log("[GhostPerception] Damn, I lost the player! (>m<)");
-                                }
+                            } 
+                            //else if (canSeePlayer) {
+                            //    if (debugging) {
+                            //        col = Color.red;
+                            //        Debug.Log("[GhostPerception] Damn, I lost the player! (>m<)");
+                            //    }
 
-                                onLosePlayer();
-                                canSeePlayer = false;
+                            //    onLosePlayer.Invoke();
+                            //    canSeePlayer = false;
 
-                                // Start a timer for how long we'll look for the lost player before giving up
-                                if (searchingCoroutine != null) {
-                                    StopCoroutine(searchingCoroutine);
-                                    if (debugging) Debug.Log("[GhostPerception] The 'Searching for lost player' coroutine was already started, restarting it now.");
-                                }
-                                searchingCoroutine = StartCoroutine(SearchingCoroutine());
-                            }
+                            //    // Start a timer for how long we'll look for the lost player before giving up
+                            //    if (searchingCoroutine != null) {
+                            //        StopCoroutine(searchingCoroutine);
+                            //        if (debugging) Debug.Log("[GhostPerception] The 'Searching for lost player' coroutine was already started, restarting it now.");
+                            //    }
+                            //    searchingCoroutine = StartCoroutine(SearchingCoroutine());
+                            //}
                         }
 
                         // Draw the debug rays
@@ -198,7 +207,7 @@ namespace Paperticket {
             yield return new WaitForSeconds(searchingDuration);
 
             // Trigger an event to signal that we have given up on the player
-            onForgottenPlayer();
+            onForgottenPlayer.Invoke();
             lastSeenPlayerPos = Vector3.zero;
 
             if (debugging) Debug.Log("[GhostPerception] I couldn't find the player I lost, giving up (.__.) ");

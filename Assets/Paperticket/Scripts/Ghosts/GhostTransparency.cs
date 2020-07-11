@@ -16,7 +16,8 @@ namespace Paperticket {
 
         [Header("Controls")]
         [SerializeField] float defaultFadeDuration = 2;
-        [SerializeField] float defaultFadeAlpha = 0.1f;
+        [SerializeField] float fadedGhostAlpha = 0.4f;
+        [SerializeField] float fadedChainAlpha = 0.3f;
         [SerializeField] bool debugging;
 
         [Header("Read Only")]
@@ -88,13 +89,13 @@ namespace Paperticket {
 
         public void FadeOut() {
             if (debugging) Debug.Log("[GhostTransparency] Fading out!");
-            SetGhostTransparency(defaultFadeAlpha, defaultFadeDuration);
-            SetChainTransparency(defaultFadeAlpha, defaultFadeDuration);
+            SetGhostTransparency(fadedGhostAlpha, defaultFadeDuration);
+            SetChainTransparency(fadedChainAlpha, defaultFadeDuration);
         }
         public void FadeOut( float fadeTime ) {
             if (debugging) Debug.Log("[GhostTransparency] Fading out!*");
-            SetGhostTransparency(defaultFadeAlpha, fadeTime);
-            SetChainTransparency(defaultFadeAlpha, fadeTime);
+            SetGhostTransparency(fadedGhostAlpha, fadeTime);
+            SetChainTransparency(fadedChainAlpha, fadeTime);
         }
 
         public void FadeOutTotal() {
