@@ -14,8 +14,9 @@ Material:
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2450
+  stringTagMap:
+    RenderType: TreeTransparentCutout
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
