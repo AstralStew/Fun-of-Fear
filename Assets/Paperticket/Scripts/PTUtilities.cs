@@ -44,6 +44,7 @@ namespace Paperticket {
         public BasicVRMovement playerMovement;
         public Transform leftController;
         public Transform rightController;
+        SnapTurnProvider snapTurnProvider;
 
         [Space(10)]
 
@@ -59,7 +60,8 @@ namespace Paperticket {
 
         public bool PlayerCanMove {
             get { return playerMovement.AllowMovement; }
-            set { playerMovement.AllowMovement = value; }
+            set { playerMovement.AllowMovement = value; 
+                  snapTurnProvider.enabled = value; }
         }
 
 
@@ -102,7 +104,16 @@ namespace Paperticket {
             }
             if (leftController == null) { Debug.LogError("[PTUtilities] ERROR -> No Left Controller was found!"); }
             if (rightController == null) { Debug.LogError("[PTUtilities] ERROR -> No Right Controller was found!"); }
+
+            // Grab the snap turn provider on the right hand
+            snapTurnProvider = rightController.GetComponent<SnapTurnProvider>();
+            if (snapTurnProvider == null) {
+                Debug.LogError("[PTUtilities] ERROR -> No Snap Turn provider was found!");
+                enabled = false;
+            }
+
             
+
             // Grab the player's movement script
             playerMovement = playerRig.GetComponent<BasicVRMovement>();
             if (playerMovement == null) {

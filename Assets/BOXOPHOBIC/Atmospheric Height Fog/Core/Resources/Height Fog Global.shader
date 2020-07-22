@@ -147,7 +147,7 @@ Shader "Hidden/BOXOPHOBIC/Atmospherics/Height Fog Global"
 
 			HLSLPROGRAM
 			#define _RECEIVE_SHADOWS_OFF 1
-			#define ASE_SRP_VERSION 70108
+			#define ASE_SRP_VERSION 70401
 			#define REQUIRE_DEPTH_TEXTURE 1
 
 			#pragma prefer_hlslcc gles
@@ -551,7 +551,7 @@ Shader "Hidden/BOXOPHOBIC/Atmospherics/Height Fog Global"
 }
 /*ASEBEGIN
 Version=18103
-1927;7;1906;1015;4223.792;5025.447;1;True;False
+1927;7;1906;1015;4223.792;5022.447;1;True;False
 Node;AmplifyShaderEditor.RangedFloatNode;885;-2912,-4864;Half;False;Property;_IsHeightFogShader;_IsHeightFogShader;5;1;[HideInInspector];Create;False;0;0;True;0;False;1;1;1;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.IntNode;891;-2656,-4864;Float;False;Property;_TransparentQueue;_TransparentQueue;6;1;[HideInInspector];Create;False;0;0;True;0;False;3000;0;0;1;INT;0
 Node;AmplifyShaderEditor.RangedFloatNode;892;-3328,-4864;Half;False;Property;_TITLE;< TITLE >;7;0;Create;True;0;0;True;1;StyledBanner(Height Fog Global);False;1;1;1;1;0;1;FLOAT;0
@@ -568,4 +568,4 @@ WireConnection;926;2;951;86
 WireConnection;926;3;951;87
 WireConnection;926;5;948;0
 ASEEND*/
-//CHKSM=92108C333CEE736439A158EFF05BCD66C3A1A381
+//CHKSM=C1C08BF7D8B0AF5D01C42E4F2DA77ABB3797472D

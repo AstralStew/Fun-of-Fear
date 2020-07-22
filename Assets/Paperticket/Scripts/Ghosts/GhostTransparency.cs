@@ -38,8 +38,8 @@ namespace Paperticket {
                 chainMaterials.Add(chainMeshes[i].material);
             }
 
-            ghostMatColor = ghostMaterials[0].color;
-            chainMatColor = chainMaterials[0].color;
+            ghostMatColor = ghostMaterials[0].GetColor("_BaseColor");
+            chainMatColor = chainMaterials[0].GetColor("_BaseColor");
 
             //ghostMatTransparent = new Color(ghostMatColor.r, ghostMatColor.g, ghostMatColor.b, defaultFadeAlpha);
             //chainMatTransparent = new Color(chainMatColor.r, chainMatColor.g, chainMatColor.b, defaultFadeAlpha);
