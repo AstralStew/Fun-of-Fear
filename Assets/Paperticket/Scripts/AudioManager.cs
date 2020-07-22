@@ -11,7 +11,7 @@ namespace Paperticket {
 
         public static AudioManager instance;
 
-        [SerializeField] AudioSource narrativeSource;
+        //[SerializeField] AudioSource narrativeSource;
         [SerializeField] AudioSource footstepsSource;
         //[SerializeField] CapsuleCollider bodyMovementCollider;
         [SerializeField] bool debugging;
@@ -31,10 +31,10 @@ namespace Paperticket {
         [SerializeField] FootstepType footstepType;
         public bool footstepsActive { get { return footstepsCo != null; } }
 
-        [Space(5)]
-        public List<AudioClip> narrativeQueue = new List<AudioClip>();
-        [SerializeField] int narrativeIndex;
-        [SerializeField] bool playingNarrative;
+        //[Space(5)]
+        //public List<AudioClip> narrativeQueue = new List<AudioClip>();
+        //[SerializeField] int narrativeIndex;
+        //[SerializeField] bool playingNarrative;
 
         Coroutine footstepsCo = null;
 
@@ -50,10 +50,10 @@ namespace Paperticket {
                 Destroy(gameObject);
             }
 
-            if (!narrativeSource) {
-                Debug.LogError("[AudioManager] ERROR -> No Narrative AudioSource found! Disabling");
-                enabled = false;
-            }
+            //if (!narrativeSource) {
+            //    Debug.LogError("[AudioManager] ERROR -> No Narrative AudioSource found! Disabling");
+            //    enabled = false;
+            //}
             if (!footstepsSource) {
                 Debug.LogError("[AudioManager] ERROR -> No Footsteps AudioSource found! Disabling");
                 enabled = false;
@@ -63,42 +63,42 @@ namespace Paperticket {
 
 
 
-        public void AddNarrationClip( AudioClip clip ) {
-            if (debugging) Debug.Log("[AudioManager] Adding narration clip("+clip.name+") to queue");
+        //public void AddNarrationClip( AudioClip clip ) {
+        //    if (debugging) Debug.Log("[AudioManager] Adding narration clip("+clip.name+") to queue");
 
-            if (!narrativeQueue.Contains(clip)) {
-                narrativeQueue.Add(clip);
-            }
+        //    if (!narrativeQueue.Contains(clip)) {
+        //        narrativeQueue.Add(clip);
+        //    }
 
-            // Start playing the clips
-            if (!playingNarrative) StartCoroutine(PlayingClips());
+        //    // Start playing the clips
+        //    if (!playingNarrative) StartCoroutine(PlayingClips());
 
-        }
+        //}
 
-        IEnumerator PlayingClips() {
+        //IEnumerator PlayingClips() {
 
-            if (debugging) Debug.Log("[AudioManager] Beginning narration playback");
+        //    if (debugging) Debug.Log("[AudioManager] Beginning narration playback");
 
-            playingNarrative = true;
+        //    playingNarrative = true;
 
-            while (narrativeIndex < narrativeQueue.Count) {
+        //    while (narrativeIndex < narrativeQueue.Count) {
 
-                if (debugging) Debug.Log("[AudioManager] Playing queue index ("+narrativeIndex+"), clip ("+narrativeQueue[narrativeIndex]+")");
+        //        if (debugging) Debug.Log("[AudioManager] Playing queue index ("+narrativeIndex+"), clip ("+narrativeQueue[narrativeIndex]+")");
 
-                narrativeSource.clip = narrativeQueue[narrativeIndex];
-                narrativeSource.Play();
-                yield return new WaitForSeconds(0.1f);
-                yield return new WaitUntil(() => !narrativeSource.isPlaying);
-                narrativeSource.Stop();
+        //        narrativeSource.clip = narrativeQueue[narrativeIndex];
+        //        narrativeSource.Play();
+        //        yield return new WaitForSeconds(0.1f);
+        //        yield return new WaitUntil(() => !narrativeSource.isPlaying);
+        //        narrativeSource.Stop();
 
-                narrativeIndex += 1;
-            }
+        //        narrativeIndex += 1;
+        //    }
 
-            if (debugging) Debug.Log("[AudioManager] Finished narration playback");
+        //    if (debugging) Debug.Log("[AudioManager] Finished narration playback");
 
-            playingNarrative = false;
+        //    playingNarrative = false;
 
-        }
+        //}
 
 
 

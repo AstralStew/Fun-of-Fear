@@ -16,7 +16,8 @@ namespace Paperticket {
 
         [Space(10)]
         public bool AddNarrationClip;
-        public AudioClip audioClip;
+        //public AudioClip audioClip;
+        public NarrativeClip narrativeClip;
 
         [Space(10)]
         public bool setFootsteps;
@@ -40,7 +41,8 @@ namespace Paperticket {
 
                 // Check if this is a narration clip
                 if (AddNarrationClip) {
-                    AudioManager.instance.AddNarrationClip(audioClip);
+                    //TapeRecorder.instance.AddNarrationClip(audioClip);
+                    TapeRecorder.instance.AddNarrationClip(narrativeClip);
                 } 
                 
                 if (sendEvent) {
