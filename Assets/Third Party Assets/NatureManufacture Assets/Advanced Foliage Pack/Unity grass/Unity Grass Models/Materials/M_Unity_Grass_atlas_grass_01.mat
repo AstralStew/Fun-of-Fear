@@ -8,14 +8,14 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_Unity_Grass_atlas_grass_01
-  m_Shader: {fileID: 4800000, guid: 8d2bb70cbf9db8d4da26e15b26e74248, type: 3}
-  m_ShaderKeywords: _NORMALMAP
+  m_Shader: {fileID: -6465566751694194690, guid: 62b262ca162113d4293233b4f603cae6,
+    type: 3}
+  m_ShaderKeywords: _COLOR_HSL _NORMALMAP _SURFACE_MAP_METALLIC_GLOSS _WIND_CONTROL_VERTEX
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
   disabledShaderPasses:
   - SHADOWCASTER
   m_SavedProperties:
@@ -23,6 +23,10 @@ Material:
     m_TexEnvs:
     - <noninit>:
         m_Texture: {fileID: 2800000, guid: 598363f0e238b3b468e4913735be50c1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Albedo:
+        m_Texture: {fileID: 2800000, guid: e623705470e827245a486b56316bbba6, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _AmbientOcclusionG:
@@ -69,12 +73,16 @@ Material:
         m_Texture: {fileID: 2800000, guid: 3cdc6b9f08b78ba4fa311d2c8533ea9d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 2800000, guid: b18669044de00e44797de8883b9dc196, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
-        m_Texture: {fileID: 2800000, guid: b18669044de00e44797de8883b9dc196, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
@@ -90,6 +98,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SubsurfaceTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ThicknessMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -113,17 +125,18 @@ Material:
     - _BillboardKwToggle: 0
     - _BillboardShadowFade: 0.5
     - _Blend: 0
-    - _BumpScale: 1
+    - _BumpScale: 0.306
     - _ColorNoiseSpread: 15
+    - _ColorVariationSpread: 0.2
     - _Cull: 0
     - _CullFarDistance: 5
     - _CullFarStart: 60
-    - _Cutoff: 0.147
+    - _Cutoff: 0.305
     - _DetailNormalMapScale: 1
     - _Drag: 0.3
     - _DstBlend: 10
     - _GlossMapScale: 1
-    - _Glossiness: 0
+    - _Glossiness: 0.626
     - _GlossinessSource: 0
     - _GlossyReflections: 0
     - _HueVariationKwToggle: 0
@@ -133,9 +146,11 @@ Material:
     - _Metallic: 0
     - _MirrorNormal: 0
     - _Mode: 1
+    - _NatureRendererDistanceControl: 1
     - _NoiseWindSpeed: 0.85
     - _NormalIntensity: 1
     - _NormalMapKwToggle: 0
+    - _ObjectHeight: 0.5
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _QueueOffset: 0
@@ -163,9 +178,14 @@ Material:
     - _TransNormalDistortion: 0.1
     - _TransScattering: 2
     - _TransShadow: 0.9
-    - _Translucency: 1
+    - _Translucency: 1.801
+    - _TranslucencyDistortion: 0.5
+    - _TranslucencyScattering: 2
+    - _TurbulenceStrength: 1
     - _TwoSided: 0
     - _UVSec: 0
+    - _VertexNormalStrength: 0
+    - _WIND_CONTROL: 2
     - _WindColorInfluence: 0
     - _WindColorThreshold: 0.3
     - _WindNoisePower: 3
@@ -173,6 +193,8 @@ Material:
     - _WindPowerDirectionX: -0.6
     - _WindPowerDirectionZ: -0.51
     - _WindQuality: 0
+    - _WindStrength: 1
+    - _WindVariation: 0.3
     - _Wind_VertexColorR: 0
     - _ZWrite: 0
     - __dirty: 0
@@ -182,16 +204,26 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DryColor: {r: 0.7205882, g: 0.6836086, b: 0.60402244, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GlossRemap: {r: 0, g: 1, b: 0, a: 0}
+    - _HSL: {r: 0, g: 0, b: 0.111285, a: 0}
+    - _HSLVariation: {r: -0.013910625, g: -0.13910624, b: -0.37558687, a: 0}
     - _HealthyColor: {r: 0.8602941, g: 0.8792712, b: 0.8792712, a: 1}
     - _HueVariation: {r: 1, g: 0.5, b: 0, a: 0.1}
     - _HueVariationColor: {r: 1, g: 0.5, b: 0, a: 0.1}
     - _NewNormal: {r: 1, g: 1.4, b: 1, a: 0}
+    - _OcclusionRemap: {r: 0, g: 1, b: 0, a: 0}
+    - _ScaleFade: {r: 50, g: 20, b: 0, a: 0}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 0.078125}
     - _SubsurfaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
+    - _Tint: {r: 1, g: 1, b: 1, a: 1}
+    - _TintVariation: {r: 1, g: 1, b: 1, a: 1}
+    - _TranslucencyColor: {r: 1, g: 1, b: 1, a: 1}
     - _TreeInstanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _TreeInstanceScale: {r: 1, g: 1, b: 1, a: 1}
     - _WindColorInfluence: {r: 0.5, g: 0.5, b: 0.5, a: 0}
     - _WindColorMultiply: {r: 1.4, g: 1.4, b: 1.4, a: 0}
+    - _WindFade: {r: 50, g: 20, b: 0, a: 0}
     - _WindNoisetilling: {r: 0.007, g: 0.007, b: 0, a: 0}
 --- !u!114 &3511194744211290694
 MonoBehaviour:
