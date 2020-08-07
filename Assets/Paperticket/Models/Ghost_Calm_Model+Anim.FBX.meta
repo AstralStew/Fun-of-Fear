@@ -66,11 +66,11 @@ ModelImporter:
       - path: 
         weight: 1
       - path: Chain Link 01
-        weight: 0
+        weight: 1
       - path: Chain Link 02
-        weight: 0
+        weight: 1
       - path: Chain Link 005
-        weight: 0
+        weight: 1
       - path: Group
         weight: 1
       - path: Group/Main
