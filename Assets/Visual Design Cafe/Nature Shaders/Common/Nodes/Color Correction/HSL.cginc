@@ -39,7 +39,7 @@ void HSL_float( float4 color, float3 hsl, out float4 colorOut )
     hsv.x = frac(hsv.x + hsl.x);
     hsv.z += hsl.z;
     colorOut = float4(_HsvToRgb( hsv ), color.a);
-    colorOut = float4(_Saturation( colorOut, (hsl.y + 1) ), color.a);
+    colorOut = float4(_Saturation( colorOut.rgb, (hsl.y + 1) ), color.a);
 }
 
 #endif

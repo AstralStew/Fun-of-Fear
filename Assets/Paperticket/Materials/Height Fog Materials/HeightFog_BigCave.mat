@@ -21,33 +21,33 @@ Material:
     m_TexEnvs: []
     m_Floats:
     - _DIRECTIONALL: 1
-    - _DirectionalIntensity: 1
+    - _DirectionalIntensity: 0.885
     - _DirectionalMode: 0
     - _DirectionalModeBlend: 0
     - _FOGG: 1
     - _FogAxisMode: 1
-    - _FogDistanceEnd: 54.4
-    - _FogDistanceStart: 25.98
-    - _FogHeightEnd: -124.17
-    - _FogHeightStart: 8.5
-    - _FogIntensity: 0.991
+    - _FogDistanceEnd: 52.4
+    - _FogDistanceStart: -10.6
+    - _FogHeightEnd: 58.6
+    - _FogHeightStart: 4.4
+    - _FogIntensity: 1
     - _HeightFogPreset: 1
     - _IsHeightFogShader: 1
     - _IsStandardPipeline: 0
     - _NOISEE: 1
-    - _NoiseDistanceEnd: 61.55
+    - _NoiseDistanceEnd: 33
     - _NoiseIntensity: 1
     - _NoiseMode: 2
     - _NoiseModeBlend: 1
-    - _NoiseScale: 12.5
+    - _NoiseScale: 7.1
     - _SKYBOXX: 1
     - _SkyboxFogFill: 0
-    - _SkyboxFogHeight: 0
+    - _SkyboxFogHeight: 0.275
     - _TITLE: 1
     m_Colors:
     - _DirectionalColor: {r: 0.05490196, g: 0.061682597, b: 0.078431375, a: 1}
-    - _FogColor: {r: 0.0139999995, g: 0.0139999995, b: 0.0139999995, a: 1}
-    - _NoiseSpeed: {r: 0, g: 0, b: 0, a: 0}
+    - _FogColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+    - _NoiseSpeed: {r: -0.1, g: -0.1, b: -0.1, a: 0}
 --- !u!114 &4640499573526970633
 MonoBehaviour:
   m_ObjectHideFlags: 11

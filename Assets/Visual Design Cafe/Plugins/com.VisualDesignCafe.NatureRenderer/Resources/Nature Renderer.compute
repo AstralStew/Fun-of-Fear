@@ -87,20 +87,20 @@ uint Count29;
 uint Count30;
 uint Count31;
 
-inline void Unpack( uint packed, out float a, out float b )
+void UnpackInt( uint packedValue, out float a, out float b )
 {
-    a = (packed >> 16) / 65535.0;
-    b = ((packed << 16) >> 16) / 65535.0;
+    a = ( (float) (packedValue >> 16) ) / 65535.0;
+    b = ( (float) ((packedValue << 16) >> 16) ) / 65535.0;
 }
 
-inline uint Pack( float a, float b )
+uint PackInt( float a, float b )
 {
     uint aa = uint(a * 65535.0);
     uint bb = uint(b * 65535.0);
     return (aa << 16) | (bb);
 }
 
-inline float4x4 QuaternionToMatrix(float4 quaternion)
+float4x4 QuaternionToMatrix(float4 quaternion)
 {
     float4x4 result = (float4x4)0;
     float x = quaternion.x;
@@ -138,38 +138,38 @@ inline float4x4 QuaternionToMatrix(float4 quaternion)
     return result;
 }
 
-inline void DecompressPosition( out float3 position, CompressedFloat4x4 compressed )
+void DecompressPosition( out float3 position, CompressedFloat4x4 compressedInstance )
 {
     float positionX;
     float positionY;
     float positionZ;
     float scale;
-    Unpack( compressed.positionXY, positionX, positionY );
-    Unpack( compressed.positionZ_scaleXZ, positionZ, scale );
+    UnpackInt( compressedInstance.positionXY, positionX, positionY );
+    UnpackInt( compressedInstance.positionZ_scaleXZ, positionZ, scale );
     positionX = positionX * CompressionRange.x + CompressionBase.x;
     positionY = positionY * CompressionRange.y + CompressionBase.y;
     positionZ = positionZ * CompressionRange.z + CompressionBase.z;
     position = float3(positionX, positionY, positionZ);
 }
 
-inline void Scale( inout CompressedFloat4x4 compressed, float scale )
+void Scale( inout CompressedFloat4x4 compressedInstance, float scale )
 {
     float positionZ;
     float scaleXZ;
     float scaleY;
     float rotationX;
 
-    Unpack( compressed.positionZ_scaleXZ, positionZ, scaleXZ );
-    Unpack( compressed.scaleY_rotationX, scaleY, rotationX );
+    UnpackInt( compressedInstance.positionZ_scaleXZ, positionZ, scaleXZ );
+    UnpackInt( compressedInstance.scaleY_rotationX, scaleY, rotationX );
 
     scaleXZ *= scale;
     scaleY *= scale;
     
-    compressed.positionZ_scaleXZ = Pack( positionZ, scaleXZ );
-    compressed.scaleY_rotationX = Pack( scaleY, rotationX );
+    compressedInstance.positionZ_scaleXZ = PackInt( positionZ, scaleXZ );
+    compressedInstance.scaleY_rotationX = PackInt( scaleY, rotationX );
 }
 
-inline void Add( uint id, StructuredBuffer<CompressedFloat4x4> buffer, uint count )
+void Add( uint id, StructuredBuffer<CompressedFloat4x4> buffer, uint count )
 {
     if( count == 0 || id >= count )
         return;
@@ -179,7 +179,7 @@ inline void Add( uint id, StructuredBuffer<CompressedFloat4x4> buffer, uint coun
     {
         float3 position;
         DecompressPosition( position, buffer[id] );
-        float distance = length(position - CameraPosition);
+        float distance = length(position - CameraPosition.xyz);
         float density = ReduceDensity.x;
         float fadeStart = ReduceDensity.y;
         float fadeEnd = ReduceDensity.z;

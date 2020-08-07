@@ -44,7 +44,7 @@ void ApplyScaleFade_OS_float( float3 vertex, float fade, out float3 vertexOut )
         else
         {
             vertexOut = vertex;
-            vertexOut.y *= saturate(fade + 0.2);
+            vertexOut.y *= fade;
         }
     #else
         vertexOut = vertex;
@@ -62,7 +62,7 @@ void ApplyScaleFade_float( float3 vertexWorldPosition, float3 objectPivot, float
         {
             vertexOut = vertexWorldPosition;
             vertexOut.y = 
-                objectPivot.y + (vertexWorldPosition.y - objectPivot.y) * saturate(fade + 0.2);
+                objectPivot.y + (vertexWorldPosition.y - objectPivot.y) * fade;
         }
     #else
         vertexOut = vertexWorldPosition;

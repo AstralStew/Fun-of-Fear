@@ -17,14 +17,6 @@ void CombineWind_float(
     float4 strength,    // The wind strength for each wind component.
     out float3 combinedWind )
 {
-    //float ambientStrength =  GetWindStrength();
-    //float turbulenceStrength = GetTurbulenceStrength();
-
-    //turbulence *= turbulenceStrength;
-    //shiver *= turbulenceStrength;
-    //ambient *= ambientStrength;
-    //gust *= ambientStrength;
-
     ambient *= strength.x;
     gust *= strength.y;
     turbulence *= strength.z;

@@ -15,8 +15,8 @@ MonoBehaviour:
   _displayName: Nature Shaders
   _version:
     _bundleIdentifier: com.VisualDesignCafe.NatureShaders-Embedded-URP
-    _versionNumber: 0.6.1
-    _buildNumber: 26
+    _versionNumber: 0.6.2
+    _buildNumber: 31
   _downloadInBackground: 1
   _autoUpdate: 0
   _priority: 0

@@ -13,7 +13,7 @@
 /// based either the vertex colors or UV (depending on the Wind Control settings).
 /// </summary>
 float GetEdgeFlutter( 
-    float3 vertexColor, // The vertex color.
+    float4 vertexColor, // The vertex color.
     float2 uv0 )        // The first UV channel. (UV0)
 {
     #if defined(_TYPE_TREE_BARK)
@@ -31,7 +31,7 @@ float GetEdgeFlutter(
     #endif
 }
 
-void GetEdgeFlutter_float( float3 vertexColor, float2 uv0, out float edgeFlutter )
+void GetEdgeFlutter_float( float4 vertexColor, float2 uv0, out float edgeFlutter )
 {
     edgeFlutter = GetEdgeFlutter( vertexColor, uv0 );
 }

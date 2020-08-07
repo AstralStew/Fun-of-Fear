@@ -44,16 +44,16 @@ void Wind_float(
     float3 pivot = GetObjectPivot();
 
     #if !defined(_TYPE_TREE_BILLBOARD)
-        float phaseOffset = GetPhaseOffset( color, texcoord0, vertexWorldPosition.xyz, pivot );
+        float phaseOffset = GetPhaseOffset( color, texcoord0.xy, vertexWorldPosition, pivot );
         float speed = GetWindSpeed();
         float3 worldNormal = GetWorldNormal( normal, pivot );
 
         // Mask.
-        float heightMask = GetHeightMask( vertex, color, texcoord0, texcoord1 );
+        float heightMask = GetHeightMask( vertex.xyz, color, texcoord0.xy, texcoord1.xy );
         float windVariation = GetWindVariation( pivot );
         float vertexMask = GetVertexMask( color );
         float mask = heightMask * vertexMask * windVariation;
-        float edgeFlutter = GetEdgeFlutter( color, texcoord0 );
+        float edgeFlutter = GetEdgeFlutter( color, texcoord0.xy );
 
         // Compute wind.
         float3 wind;
@@ -81,7 +81,14 @@ void Wind_float(
 
     // Trunk Rotation
     #if defined(_TYPE_TREE_LEAVES) || defined( _TYPE_TREE_BARK ) || defined(_TYPE_TREE_BILLBOARD)
-        TrunkMovement_float( vertex, vertexWorldPosition.xyz, vertexOut, texcoord1, pivot, windDirection, vertexOut );
+        TrunkMovement_float( 
+            vertex.xyz, 
+            vertexWorldPosition.xyz, 
+            vertexOut, 
+            texcoord1.xy, 
+            pivot, 
+            windDirection, 
+            vertexOut );
     #endif
 }
 

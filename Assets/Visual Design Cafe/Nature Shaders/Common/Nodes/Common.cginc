@@ -39,13 +39,13 @@
     float3 TransformObjectToWorldDir(float3 dirOS)
     {
         // Normalize to support uniform scaling
-        return SafeNormalize(mul(unity_ObjectToWorld, dirOS));
+        return SafeNormalize( mul(unity_ObjectToWorld, float4(dirOS, 0.0)).xyz );
     }
 
     float3 TransformWorldToObjectDir(float3 dirWS)
     {
         // Normalize to support uniform scaling
-        return normalize(mul(unity_WorldToObject, dirWS));
+        return normalize( mul(unity_WorldToObject, float4(dirWS, 0.0)).xyz );
     }
 #endif
 

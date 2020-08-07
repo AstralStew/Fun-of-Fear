@@ -27,9 +27,9 @@ float3 SampleGust(
 
     // Constant offset moving the noise texture slowly to the left to prevent
     // the same gust repeating at the same location.
-    float2 constantOffset = cross( windDirection.xyz, float3(0,1,0) ) * _Time.x * 0.5;
+    float3 constantOffset = cross( windDirection.xyz, float3(0,1,0) ) * _Time.x * 0.5;
     
-    float2 windOffsetOverTime = windDirection.xz * time + constantOffset;
+    float2 windOffsetOverTime = windDirection.xz * time + constantOffset.xz;
     #if defined(_TYPE_TREE_LEAVES)
         float3 vertexOffset = vertexWorldPosition - objectPivot;
         float2 offset = objectPivot.xz * 0.02 - windOffsetOverTime + vertexOffset.xz * 0.0075 * edgeFlutter;

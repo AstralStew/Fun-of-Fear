@@ -67,7 +67,7 @@ void GetTranslucencyInput( float thickness, out TranslucencyInput input )
 	input.Thickness = thickness;
 
 	#ifdef PROPERTY_TranslucencyColor
-		input.Color = _TranslucencyColor;
+		input.Color = _TranslucencyColor.rgb;
 	#else
 		input.Color = half3(1, 1, 1);
 	#endif
@@ -80,7 +80,7 @@ float3 Overlay(float3 a, float3 b)
 		: 1 - 2 * (1-a) * (1-b);
 }
 
-half4 Translucency(
+half3 Translucency(
 	TranslucencyInput input,
 	float3 bakedGI,
 	float3 surfaceAlbedo,
@@ -91,7 +91,7 @@ half4 Translucency(
 	half3 lightDir = light.direction + surfaceNormal * input.NormalDistortion;
 	half transVdotL = pow( saturate( dot( viewDirectionWS, -lightDir ) ), input.Scattering ) * input.Scale;
 	half3 translucency = light.shadowAttenuation * light.distanceAttenuation * (transVdotL + bakedGI) * (1-input.Thickness);
-	return half4( surfaceAlbedo * light.color * translucency * input.Color, 0 );
+	return half3( surfaceAlbedo * light.color * translucency * input.Color );
 }
 
 #ifdef STANDARD_RENDER_PIPELINE
@@ -124,14 +124,16 @@ half4 Translucency(
 		GetTranslucencyInput( s.Thickness, input );
 
 		half3 translucency = 
-			Translucency( 
-				input, 
-				gi.indirect.diffuse,
-				s.Albedo,
-				s.Normal, 
-				viewDir, 
-				GetMainLight());
-
+			input.Scale > 0
+				? Translucency( 
+					input, 
+					gi.indirect.diffuse,
+					s.Albedo,
+					s.Normal, 
+					viewDir, 
+					GetMainLight())
+				: half3(0,0,0);
+			
 		half4 color = LightingStandard (r, viewDir, gi);
 		color.rgb += Overlay(translucency.rgb, color.rgb);
 		return color;
@@ -161,7 +163,7 @@ half4 Translucency(
 			
 			#ifdef PROPERTY_ThicknessMap
 				float thickness = 
-					SAMPLE_TEXTURE2D(_ThicknessMap, sampler_ThicknessMap, varyings.texCoord0.xy);
+					SAMPLE_TEXTURE2D(_ThicknessMap, sampler_ThicknessMap, varyings.texCoord0.xy).r;
 			#else
 				thickness = 0;
 			#endif
@@ -173,15 +175,18 @@ half4 Translucency(
 			TranslucencyInput input;
 			GetTranslucencyInput( thickness, input );
 			
-			half4 translucency = 
-				Translucency( 
-					input, 
-					inputData.bakedGI,
-					surfaceDescription.Albedo,
-					surfaceDescription.Normal, 
-					inputData.viewDirectionWS, 
-					GetMainLight(inputData.shadowCoord));
+			half3 translucency = 
+				input.Scale > 0
+					? Translucency( 
+						input, 
+						inputData.bakedGI,
+						surfaceDescription.Albedo,
+						surfaceDescription.Normal, 
+						inputData.viewDirectionWS, 
+						GetMainLight(inputData.shadowCoord))
+					: half3(0,0,0);
 
+			/* // Disabled to improve performance.
 			#ifdef _ADDITIONAL_LIGHTS
 				uint pixelLightCount = GetAdditionalLightsCount();
 				for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
@@ -196,6 +201,7 @@ half4 Translucency(
 							GetAdditionalLight(lightIndex, inputData.positionWS));
 				}
 			#endif
+			*/
 
 			#if defined(_TYPE_GRASS)
 				float3 vertex = TransformWorldToObject(inputData.positionWS.xyz);

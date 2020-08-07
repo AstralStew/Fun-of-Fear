@@ -19,13 +19,13 @@ struct CompressedFloat4x4
 uniform float3 _CompressionRange;
 uniform float3 _CompressionBase;
 
-inline void Unpack( uint packed, out float a, out float b )
+void UnpackInt( uint packedValue, out float a, out float b )
 {
-    a = (packed >> 16) / 65535.0;
-    b = ((packed << 16) >> 16) / 65535.0;
+    a =  ( (float) (packedValue >> 16) ) / 65535.0;
+    b =  ( (float) ( (packedValue << 16) >> 16 ) ) / 65535.0;
 }
 
-inline float4x4 QuaternionToMatrix(float4 quaternion)
+float4x4 QuaternionToMatrix(float4 quaternion)
 {
     float4x4 result = (float4x4)0;
     float x = quaternion.x;
@@ -63,7 +63,7 @@ inline float4x4 QuaternionToMatrix(float4 quaternion)
     return result;
 }
 
-inline void Decompress( inout float4x4 instance, CompressedFloat4x4 compressed )
+void DecompressInstanceMatrix( inout float4x4 instance, CompressedFloat4x4 compressedMatrix )
 {
     float positionX;
     float positionY;
@@ -77,10 +77,10 @@ inline void Decompress( inout float4x4 instance, CompressedFloat4x4 compressed )
     float rotationZ;
     float rotationW;
 
-    Unpack( compressed.positionXY, positionX, positionY );
-    Unpack( compressed.positionZ_scaleXZ, positionZ, scaleXZ );
-    Unpack( compressed.scaleY_rotationX, scaleY, rotationX );
-    Unpack( compressed.rotationZW, rotationZ, rotationW );
+    UnpackInt( compressedMatrix.positionXY, positionX, positionY );
+    UnpackInt( compressedMatrix.positionZ_scaleXZ, positionZ, scaleXZ );
+    UnpackInt( compressedMatrix.scaleY_rotationX, scaleY, rotationX );
+    UnpackInt( compressedMatrix.rotationZW, rotationZ, rotationW );
 
     positionX = positionX * _CompressionRange.x + _CompressionBase.x;
     positionY = positionY * _CompressionRange.y + _CompressionBase.y;
@@ -109,7 +109,13 @@ inline void Decompress( inout float4x4 instance, CompressedFloat4x4 compressed )
     instance[2][3] = position.z;
 }
 
-#if defined(SHADER_API_GLCORE) || defined(SHADER_API_D3D11) || defined(SHADER_API_GLES3) || defined(SHADER_API_METAL) || defined(SHADER_API_VULKAN) || defined(SHADER_API_PSSL) || defined(SHADER_API_XBOXONE)
+#if defined(SHADER_API_GLCORE) \
+    || defined(SHADER_API_D3D11) \
+    || defined(SHADER_API_GLES3) \
+    || defined(SHADER_API_METAL) \
+    || defined(SHADER_API_VULKAN) \
+    || defined(SHADER_API_PSSL) \
+    || defined(SHADER_API_XBOXONE)
 uniform StructuredBuffer<CompressedFloat4x4> _NatureRendererBuffer;
 #endif
 
@@ -151,7 +157,7 @@ void SetupNatureRenderer()
             #undef unity_WorldToObject
         #endif
         
-        Decompress(unity_ObjectToWorld, _NatureRendererBuffer[unity_InstanceID]);
+        DecompressInstanceMatrix(unity_ObjectToWorld, _NatureRendererBuffer[unity_InstanceID]);
         unity_WorldToObject = inverse(unity_ObjectToWorld);
     #endif
 }

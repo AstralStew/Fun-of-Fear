@@ -14,7 +14,7 @@
 /// Should only be called for trees.
 /// </summary>
 float GetBranchPhaseOffset( 
-    float3 vertexColor,         // The vertex color.
+    float4 vertexColor,         // The vertex color.
     float2 texcoord0,           // The first UV channel.
     float3 vertexWorldPosition, // The vertex position in world space.
     float3 objectPivot )        // The object pivot in world space.
@@ -44,7 +44,7 @@ float GetBranchPhaseOffset(
 /// Returns the phase offset for the vertex.
 /// </summary>
 float GetPhaseOffset( 
-    float3 vertexColor,         // The vertex color.
+    float4 vertexColor,         // The vertex color.
     float2 uv0,                 // The first UV channel.
     float3 vertexWorldPosition, // The vertex position in world space.
     float3 objectPivot )        // The object pivot in world space.
@@ -63,7 +63,7 @@ float GetPhaseOffset(
 }
 
 void GetPhaseOffset_float( 
-    float3 vertexColor,         // The vertex color.
+    float4 vertexColor,         // The vertex color.
     float2 uv0,                 // The first UV channel.
     float3 vertexWorldPosition, // The vertex position in world space.
     float3 pivot,               // The object pivot in world space.

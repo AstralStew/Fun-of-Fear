@@ -22,18 +22,22 @@ float4 AmbientFrequency(
 {
     // Constant offset moving the noise texture slowly to the left to prevent
     // the same gust repeating at the same location.
-    float2 constantOffset = cross( windDirection.xyz, float3(0,1,0) ) * _Time.x * 0.5;
-
+    float3 constantOffset = cross( windDirection.xyz, float3(0,1,0) ) * _Time.x * 0.5;
+    
     float footprint = 3;
     float time = 
         GetSmoothAmbientOffset() 
-            - dot( windDirection, (vertexWorldPosition - objectPivot) ) * phaseOffset * footprint 
-            + constantOffset;
+            - dot( windDirection, (vertexWorldPosition - objectPivot) ) * phaseOffset * footprint;
 
-    float2 pivotOffset = windDirection * float3(objectPivot.x, 0, objectPivot.z);
+    float pivotOffset = length( float3(objectPivot.x, 0, objectPivot.z) );
     float scale = 0.5;
     float frequency = pivotOffset * scale - time;
-    return FastSin(float4(frequency, frequency*0.5, frequency*0.25, frequency*0.125) * speed );
+    return FastSin(
+        float4(
+            frequency + constantOffset.x, 
+            frequency*0.5 + constantOffset.z, 
+            frequency*0.25, 
+            frequency*0.125) * speed );
 }
 
 /// <summary>
