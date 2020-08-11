@@ -207,11 +207,21 @@ public class HeightFogOverride : StyledMonoBehaviour
 #endif
     }
 
+    Vector3 colliderSize;
+    Vector3 totalSize;
     void OnDrawGizmos()
     {
         Gizmos.color = new Color(fogColor.r, fogColor.g, fogColor.b, volumeVisibility);
-        Gizmos.DrawCube(transform.position, new Vector3(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z));
-        Gizmos.DrawCube(transform.position, new Vector3(transform.lossyScale.x + (volumeDistanceFade * 2), transform.lossyScale.y + (volumeDistanceFade * 2), transform.lossyScale.z + (volumeDistanceFade * 2)));
+        Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
+
+        colliderSize = (volumeCollider as BoxCollider).size;
+        totalSize = Vector3.Scale(transform.lossyScale, colliderSize);
+
+        Gizmos.DrawCube(Vector3.zero, transform.lossyScale);
+        Gizmos.DrawCube(Vector3.zero, totalSize + (Vector3.one * volumeDistanceFade * 2));
+                             
+        //Gizmos.DrawCube(Vector3.zero, new Vector3(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z));
+        //Gizmos.DrawCube(Vector3.zero, new Vector3(transform.lossyScale.x + (volumeDistanceFade * 2), transform.lossyScale.y + (volumeDistanceFade * 2), transform.lossyScale.z + (volumeDistanceFade * 2)));
     }
 
     void GetCamera()

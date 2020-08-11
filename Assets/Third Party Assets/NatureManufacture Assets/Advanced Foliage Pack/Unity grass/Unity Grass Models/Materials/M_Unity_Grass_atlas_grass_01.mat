@@ -136,7 +136,7 @@ Material:
     - _Drag: 0.3
     - _DstBlend: 10
     - _GlossMapScale: 1
-    - _Glossiness: 0.626
+    - _Glossiness: 0.29
     - _GlossinessSource: 0
     - _GlossyReflections: 0
     - _HueVariationKwToggle: 0
@@ -194,7 +194,7 @@ Material:
     - _WindPowerDirectionZ: -0.51
     - _WindQuality: 0
     - _WindStrength: 1
-    - _WindVariation: 0.3
+    - _WindVariation: 0.5
     - _Wind_VertexColorR: 0
     - _ZWrite: 0
     - __dirty: 0
@@ -205,8 +205,8 @@ Material:
     - _DryColor: {r: 0.7205882, g: 0.6836086, b: 0.60402244, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GlossRemap: {r: 0, g: 1, b: 0, a: 0}
-    - _HSL: {r: 0, g: 0, b: 0.111285, a: 0}
-    - _HSLVariation: {r: -0.013910625, g: -0.13910624, b: -0.37558687, a: 0}
+    - _HSL: {r: 0, g: 0, b: 0.17891118, a: 0}
+    - _HSLVariation: {r: -0.013910625, g: -0.13910624, b: -0.2841583, a: 0}
     - _HealthyColor: {r: 0.8602941, g: 0.8792712, b: 0.8792712, a: 1}
     - _HueVariation: {r: 1, g: 0.5, b: 0, a: 0.1}
     - _HueVariationColor: {r: 1, g: 0.5, b: 0, a: 0.1}
