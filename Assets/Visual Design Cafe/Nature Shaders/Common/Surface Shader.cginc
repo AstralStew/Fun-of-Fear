@@ -43,11 +43,11 @@ sampler2D _MaskMap;
 sampler2D _MetallicGlossMap;
 sampler2D _OcclusionMap;
 
+#include "Nodes/Integrations/Nature Renderer.cginc"
 #include "Nodes/Common.cginc"
 #include "Nodes/Wind/Wind.cginc"
 #include "Nodes/Color Correction/HSL.cginc"
 #include "Nodes/Lighting/Translucency.cginc"
-#include "Nodes/Integrations/Nature Renderer.cginc"
 #include "Nodes/Procedural/Perlin Noise.cginc"
 #include "Nodes/Input/Fade.cginc"
 
@@ -63,11 +63,25 @@ struct Input
     float3 vertex;
     float3 worldPos;
     float noise;
+    float3 translucency;
 };
 
 #if defined(_TYPE_TREE_BILLBOARD)
     #include "Billboard.cginc"
 #endif
+
+void ApplyColorCorrection( inout float4 albedo, float noise )
+{
+    #ifdef _COLOR_HSL
+        float4 albedo1 = albedo;
+        float4 albedo2 = albedo;
+        HSL_float( albedo1, _HSL, albedo1 );
+        HSL_float( albedo2, _HSLVariation, albedo2 );
+        albedo = lerp(albedo2, albedo1, noise);
+    #else
+        albedo *= lerp(_TintVariation, _Tint, noise);
+    #endif
+}
 
 void NatureShaderVertex( inout appdata_full v, out Input o )
 {
@@ -89,10 +103,15 @@ void NatureShaderVertex( inout appdata_full v, out Input o )
     #if !defined(_TYPE_TREE_BILLBOARD)
         float windFade;
         float scaleFade;
-        GetFade_float( 
-            float3(ObjectToWorld[0][3], ObjectToWorld[1][3], ObjectToWorld[2][3]),
-            windFade,
-            scaleFade );
+        #ifdef PER_OBJECT_VALUES_CALCULATED
+            windFade = g_WindFade;
+            scaleFade = g_ScaleFade;
+        #else
+            GetFade_float( 
+                float3(ObjectToWorld[0][3], ObjectToWorld[1][3], ObjectToWorld[2][3]),
+                windFade,
+                scaleFade );
+        #endif
     #endif
 
     o.worldPos = TransformObjectToWorld(v.vertex);
@@ -129,10 +148,47 @@ void NatureShaderVertex( inout appdata_full v, out Input o )
         v.normal = lerp(float3(0,1,0), v.normal, _VertexNormalStrength);
     #endif
     
-    PerlinNoise_float(
-        float2(ObjectToWorld[0][3], ObjectToWorld[2][3]), 
-        _ColorVariationSpread, 
-        o.noise);
+    #ifdef PER_OBJECT_VALUES_CALCULATED
+        o.noise = g_WorldNoise;
+    #else
+        PerlinNoise_float(
+            float2(ObjectToWorld[0][3], ObjectToWorld[2][3]), 
+            _ColorVariationSpread, 
+            o.noise);
+    #endif
+
+    #ifdef _PER_VERTEX_TRANSLUCENCY
+        #if defined(POINT) || defined(POINT_COOKIE) || defined(SPOT)
+            // Do not calculate translucency for point lights or spot lights.
+            o.translucency = float3(0,0,0);
+        #else
+            #ifdef _TYPE_GRASS
+                float thickness = 1-saturate(v.vertex.y / GetObjectHeight());
+            #else
+                float thickness = 0;
+            #endif
+
+            // Sample albedo color from the center of the texture at the lowest mip level.
+            float4 albedo = tex2Dlod(_Albedo, float4(0.5, 0.5, 0, 8));
+
+            // Color correct the sampled albedo color.
+            ApplyColorCorrection( albedo, o.noise );
+
+            // Calculate translucency for this vertex.
+            TranslucencyInput input;
+            GetTranslucencyInput( thickness, input );
+            o.translucency =
+                Translucency( 
+                        input, 
+                        float3(0,0,0), // Ignore Global Illumination.
+                        albedo.rgb,
+                        v.normal,
+                        TransformObjectToWorldDir(ObjSpaceViewDir(v.vertex)), 
+                        GetMainLight( o.worldPos ));
+        #endif
+    #else
+        o.translucency = float3(0,0,0);
+    #endif
 }
 
 #ifdef TRANSLUCENT
@@ -144,33 +200,34 @@ void NatureShaderVertex( inout appdata_full v, out Input o )
     // Albedo
     float4 albedo = tex2D( _Albedo, i.uv_Albedo );
     #ifndef _TYPE_TREE_BARK
-        clip( albedo.a  - _Cutoff );
+        #ifndef _ALPHA_CLIP_DISABLED
+            clip( albedo.a  - _Cutoff );
+        #endif
     #endif
     
-    #ifdef _COLOR_HSL
-        float4 albedo1 = albedo;
-        float4 albedo2 = albedo;
-        HSL_float( albedo1, _HSL, albedo1 );
-        HSL_float( albedo2, _HSLVariation, albedo2 );
-        albedo = lerp(albedo2, albedo1, i.noise);
-    #else
-        albedo *= lerp(_TintVariation, _Tint, i.noise);
-    #endif
-
+    ApplyColorCorrection( albedo, i.noise );
     o.Albedo = albedo.rgb;
     o.Alpha = albedo.a;
 
     // Normal
-    o.Normal = UnpackScaleNormal( tex2D( _BumpMap, i.uv_Albedo ), _BumpScale );
+    #ifdef _BUMP_MAP_ON
+        o.Normal = UnpackScaleNormal( tex2D( _BumpMap, i.uv_Albedo ), _BumpScale ).xyz;
+    #endif
 
     // Mask Map
     #ifdef _SURFACE_MAP_MASK
-        float4 maskMap = tex2D(_MaskMap, i.uv_Albedo);
-        o.Metallic = maskMap.r;
-        o.Smoothness = Remap(maskMap.a, _GlossRemap);
-        o.Occlusion = Remap(maskMap.g, _OcclusionRemap);
+        #ifdef _SURFACE_MAP_ON
+            float4 maskMap = tex2D(_MaskMap, i.uv_Albedo);
+            o.Metallic = maskMap.r;
+            o.Smoothness = Remap(maskMap.a, _GlossRemap);
+            o.Occlusion = Remap(maskMap.g, _OcclusionRemap);
+        #else
+            o.Metallic = 0;
+            o.Smoothness = 0.15;
+            o.Occlusion = 1;
+        #endif
     #else
-        #ifdef _METALLICGLOSSMAP_ON
+        #ifdef _SURFACE_MAP_ON
             float4 metallicGloss = tex2D( _MetallicGlossMap, i.uv_Albedo );
             float metallic = metallicGloss.r;
             float glossiness = Remap(metallicGloss.a, _GlossRemap);
@@ -182,7 +239,7 @@ void NatureShaderVertex( inout appdata_full v, out Input o )
         o.Metallic = metallic;
         o.Smoothness = glossiness;
 
-        #ifdef PROPERTY_OcclusionMap
+        #if defined(PROPERTY_OcclusionMap) && defined(_SURFACE_MAP_ON)
             float occlusion = tex2D( _OcclusionMap, i.uv_Albedo ).g;
             o.Occlusion = Remap(occlusion, _OcclusionRemap);
         #else
@@ -192,18 +249,22 @@ void NatureShaderVertex( inout appdata_full v, out Input o )
 
     // Translucency
     #ifdef TRANSLUCENT
-        #ifdef PROPERTY_ThicknessMap
-            o.Thickness = tex2D( _ThicknessMap, i.uv_Albedo ).r;
+        #ifdef _PER_VERTEX_TRANSLUCENCY
+            o.Translucency = i.translucency;
         #else
-            o.Thickness = 0;
-        #endif
+            #ifdef PROPERTY_ThicknessMap
+                o.Thickness = tex2D( _ThicknessMap, i.uv_Albedo ).r;
+            #else
+                o.Thickness = 0;
+            #endif
 
-        #ifdef PROPERTY_ThicknessRemap
-            o.Thickness = Remap( o.Thickness, _ThicknessRemap );
-        #endif
+            #ifdef PROPERTY_ThicknessRemap
+                o.Thickness = Remap( o.Thickness, _ThicknessRemap );
+            #endif
 
-        #if defined(_TYPE_GRASS)
-            o.Thickness = 1 - (1 - o.Thickness) * saturate(i.vertex.y / GetObjectHeight());
+            #if defined(_TYPE_GRASS)
+                o.Thickness = 1 - (1 - o.Thickness) * saturate(i.vertex.y / GetObjectHeight());
+            #endif
         #endif
     #endif
 }
@@ -241,7 +302,11 @@ void NatureShaderSurface_float(
     smoothness = o.Smoothness;
     occlusion = o.Occlusion;
     #ifdef TRANSLUCENT
-        thickness = o.Thickness;
+        #ifdef _PER_VERTEX_TRANSLUCENCY
+            thickness = 0;
+        #else
+            thickness = o.Thickness;
+        #endif
     #else
         thickness = 0;
     #endif

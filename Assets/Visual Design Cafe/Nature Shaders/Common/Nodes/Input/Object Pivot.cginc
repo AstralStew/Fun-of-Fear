@@ -13,7 +13,11 @@
 /// </summary>
 float3 GetObjectPivot()
 {
-    return GetAbsolutePositionWS( TransformObjectToWorld( float3(0,0,0) ) );
+    #if defined(PER_OBJECT_VALUES_CALCULATED)
+        return g_ObjectPivot;
+    #else
+        return GetAbsolutePositionWS( TransformObjectToWorld( float3(0,0,0) ) );
+    #endif
 }
 
 void GetObjectPivot_float( out float3 objectPivot )

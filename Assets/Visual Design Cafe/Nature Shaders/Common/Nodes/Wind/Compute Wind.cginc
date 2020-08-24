@@ -36,6 +36,7 @@ void ComputeWind_float(
     
     float ambientStrength =  GetWindStrength();
     float turbulenceStrength = GetTurbulenceStrength();
+    phaseOffset *= dot( windDirection, (vertexWorldPosition - objectPivot) );
 
     CombineWind_float( 
         AmbientWind( parameters_ambient ), 

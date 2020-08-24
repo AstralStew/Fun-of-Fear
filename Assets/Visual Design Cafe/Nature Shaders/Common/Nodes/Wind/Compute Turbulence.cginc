@@ -25,9 +25,7 @@ float3 Turbulence(
     #if defined(_TYPE_TREE_BARK)
         return float3(0, 0, 0);
     #else
-        float time = 
-            GetSmoothTurbulenceOffset() 
-                - dot( windDirection, (vertexWorldPosition - objectPivot) ) * phaseOffset;
+        float time = GetSmoothTurbulenceOffset() - phaseOffset;
         float frequency = (objectPivot.x + objectPivot.y + objectPivot.z) * 2.5 - time;
 
         // TODO: Add a secondary frequency.

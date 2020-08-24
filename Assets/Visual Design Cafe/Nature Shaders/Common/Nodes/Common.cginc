@@ -64,26 +64,25 @@ float4 TriangleWave( float4 x )
 }
 float4 SmoothTriangleWave( float4 x ) 
 {   
-    return SmoothCurve( TriangleWave( x ) - 0.5 ) * 2.0; 
+    return SmoothCurve( TriangleWave( x ) ); 
 }
 
 float4 FastSin( float4 x )
 {
-    // TODO: Use triangle wave for low quality settings.
-    //return SmoothTriangleWave( x * 0.31830988618 * 0.5 );
-    return sin(x);
+    #ifdef _WIND_QUALITY_HIGH
+        return sin(x);
+    #else
+        #ifndef PI
+            #define PI 3.14159265
+        #endif
+        #define DIVIDE_BY_PI 1.0 / (2.0 * PI)
+        return (SmoothTriangleWave( x * DIVIDE_BY_PI ) - 0.5) * 2;
+    #endif
 }
 
 float3 FixStretching( float3 vertex, float3 original, float3 center )
 {
-    if(length(center - vertex) == 0)
-    {
-        return vertex;
-    }
-    
-    float d = length(original - center);
-    vertex += normalize(center - vertex) * (length(vertex - center)-d) * 1;
-    return vertex;
+    return center + SafeNormalize(vertex - center) * length(original - center);
 }
 
 float3 RotateAroundAxis( float3 center, float3 original, float3 u, float angle )

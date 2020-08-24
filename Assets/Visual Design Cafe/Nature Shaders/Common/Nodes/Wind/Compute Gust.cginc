@@ -22,13 +22,17 @@ float3 SampleGust(
         float time = GetSmoothGustOffset() - phaseOffset * 0.05;
         lod = 5;
     #else
-        float time = GetSmoothGustOffset() - dot( windDirection, (vertexWorldPosition - objectPivot) ) * phaseOffset * 0.05;
+        float time = GetSmoothGustOffset() - phaseOffset * 0.05;
     #endif
 
     // Constant offset moving the noise texture slowly to the left to prevent
     // the same gust repeating at the same location.
-    float3 constantOffset = cross( windDirection.xyz, float3(0,1,0) ) * _Time.x * 0.5;
-    
+    #ifdef PER_OBJECT_VALUES_CALCULATED
+        float3 constantOffset = g_ConstantWindOffset * _Time.x * 0.5;
+    #else
+        float3 constantOffset = cross( windDirection.xyz, float3(0,1,0) ) * _Time.x * 0.5;
+    #endif
+
     float2 windOffsetOverTime = windDirection.xz * time + constantOffset.xz;
     #if defined(_TYPE_TREE_LEAVES)
         float3 vertexOffset = vertexWorldPosition - objectPivot;

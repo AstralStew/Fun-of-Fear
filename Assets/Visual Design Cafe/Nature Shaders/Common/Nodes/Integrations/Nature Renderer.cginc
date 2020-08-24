@@ -8,21 +8,61 @@
 
 #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
 
+#define Use_Macro_UNITY_MATRIX_M_instead_of_unity_ObjectToWorld unity_ObjectToWorld
+#define Use_Macro_UNITY_MATRIX_I_M_instead_of_unity_WorldToObject unity_WorldToObject
+
 struct CompressedFloat4x4
 {
     uint positionXY;
-    uint positionZ_scaleXZ;
-    uint scaleY_rotationX;
+    uint positionZ_scale;
+    uint rotationXY;
     uint rotationZW;
 };
 
 uniform float3 _CompressionRange;
 uniform float3 _CompressionBase;
 
-void UnpackInt( uint packedValue, out float a, out float b )
+
+uint CompressToUshort( float value, float precision )
 {
-    a =  ( (float) (packedValue >> 16) ) / 65535.0;
-    b =  ( (float) ( (packedValue << 16) >> 16 ) ) / 65535.0;
+    return (uint)(value / precision * 65535.0);
+}
+
+uint CompressToByte( float value, float precision )
+{
+    return (uint)(value / precision * 255.0);
+}
+
+float DecompressFromByte( uint value, float precision )
+{
+    return value / 255.0 * precision;
+}
+
+float DecompressFromUshort( uint value, float precision )
+{
+    return value / 65535.0 * precision;
+}
+
+void _UnpackInt( uint packedInt, out uint a, out uint b )
+{
+    a = ( (uint) (packedInt >> 16) );
+    b = ( (uint) ((packedInt << 16) >> 16) );
+}
+
+void _UnpackShort( uint packedShort, out uint a, out uint b )
+{
+    a = ( (uint) (packedShort >> 8) );
+    b = ( (uint) ((packedShort << 24) >> 24) );
+}
+
+uint _PackInt( uint ushortA, uint ushortB )
+{
+    return ushortA << 16 | ushortB;
+}
+
+uint _PackShort( uint byteA, uint byteB )
+{
+    return (byteA << 8) | byteB;
 }
 
 float4x4 QuaternionToMatrix(float4 quaternion)
@@ -65,39 +105,38 @@ float4x4 QuaternionToMatrix(float4 quaternion)
 
 void DecompressInstanceMatrix( inout float4x4 instance, CompressedFloat4x4 compressedMatrix )
 {
-    float positionX;
-    float positionY;
-    float positionZ;
+    uint positionX, positionY, positionZ;
+    uint scaleXYZ;
+    uint rotationX, rotationY, rotationZ, rotationW;
 
-    float scaleXZ;
-    float scaleY;
+    _UnpackInt( compressedMatrix.positionXY, positionX, positionY );
+    _UnpackInt( compressedMatrix.positionZ_scale, positionZ, scaleXYZ );
+    _UnpackInt( compressedMatrix.rotationXY, rotationX, rotationY );
+    _UnpackInt( compressedMatrix.rotationZW, rotationZ, rotationW );
 
-    float rotationX;
-    float rotationY;
-    float rotationZ;
-    float rotationW;
+    uint scaleX, scaleY;
+    _UnpackShort( scaleXYZ, scaleX, scaleY );
 
-    UnpackInt( compressedMatrix.positionXY, positionX, positionY );
-    UnpackInt( compressedMatrix.positionZ_scaleXZ, positionZ, scaleXZ );
-    UnpackInt( compressedMatrix.scaleY_rotationX, scaleY, rotationX );
-    UnpackInt( compressedMatrix.rotationZW, rotationZ, rotationW );
+    float3 position = 
+        float3(
+            DecompressFromUshort(positionX, _CompressionRange.x) + _CompressionBase.x,
+            DecompressFromUshort(positionY, _CompressionRange.y) + _CompressionBase.y,
+            DecompressFromUshort(positionZ, _CompressionRange.z) + _CompressionBase.z );
 
-    positionX = positionX * _CompressionRange.x + _CompressionBase.x;
-    positionY = positionY * _CompressionRange.y + _CompressionBase.y;
-    positionZ = positionZ * _CompressionRange.z + _CompressionBase.z;
+    float3 scale =
+        float3(
+            DecompressFromByte(scaleX, 16.0),
+            DecompressFromByte(scaleY, 16.0),
+            DecompressFromByte(scaleX, 16.0) );
 
-    scaleXZ *= 16.0;
-    scaleY *= 16.0;
+    float4 rotation =
+        float4(
+            DecompressFromUshort(rotationX, 2.0) - 1.0,
+            DecompressFromUshort(rotationY, 2.0) - 1.0,
+            DecompressFromUshort(rotationZ, 2.0) - 1.0,
+            DecompressFromUshort(rotationW, 2.0) - 1.0 );
 
-    rotationX = rotationX * 2.0 - 1.0;
-    rotationZ = rotationZ * 2.0 - 1.0;
-    rotationW = rotationW * 2.0 - 1.0;
-    rotationY = 
-        sqrt( 1.0 - (rotationX * rotationX + rotationZ * rotationZ + rotationW * rotationW) );
-
-    float3 position = float3(positionX, positionY, positionZ);
-    float3 scale = float3(scaleXZ, scaleY, scaleXZ);
-    instance = QuaternionToMatrix( float4(rotationX, rotationY, rotationZ, rotationW) );
+    instance = QuaternionToMatrix( rotation );
     
     instance[0][0] *= scale.x; instance[1][0] *= scale.y; instance[2][0] *= scale.z;
     instance[0][1] *= scale.x; instance[1][1] *= scale.y; instance[2][1] *= scale.z;
@@ -149,16 +188,45 @@ float4x4 inverse(float4x4 input)
  }
 #endif
 
+// Pre-calculate and cache data for Nature Shaders that relies on
+// per-object data instead of per-vertex or per-pixel.
+#if defined(UNITY_PROCEDURAL_INSTANCING_ENABLED) && defined(NATURE_SHADERS)
+    
+    #define PER_OBJECT_VALUES_CALCULATED
+    
+    float g_WindFade;
+    float g_ScaleFade;
+    float g_WorldNoise;
+    float3 g_ObjectPivot;
+    float3 g_ConstantWindOffset;
+    float g_PivotOffset;
+    float3 g_WorldNormal;
+
+    #include "../Input/Fade.cginc"
+    #include "../Procedural/Perlin Noise.cginc"
+    #include "../Input/Wind Direction.cginc"
+
+    void PreCalculateNatureShadersData()
+    {
+        g_ObjectPivot = GetAbsolutePositionWS( TransformObjectToWorld( float3(0,0,0) ) );
+        g_ConstantWindOffset = cross( GetWindDirection().xyz, float3(0,1,0) );
+        g_PivotOffset = length( float3(g_ObjectPivot.x, 0, g_ObjectPivot.z) );
+        g_WorldNormal = TransformObjectToWorldDir( float3(0, 0, 1) );
+
+        GetFade( g_ObjectPivot, g_WindFade, g_ScaleFade );
+        PerlinNoise( g_ObjectPivot.xz, _ColorVariationSpread, g_WorldNoise);
+    }
+#endif
+
 void SetupNatureRenderer()
 {
     #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
-        #ifdef HIGH_DEFINITION_RENDER_PIPELINE
-            #undef unity_ObjectToWorld
-            #undef unity_WorldToObject
-        #endif
-        
         DecompressInstanceMatrix(unity_ObjectToWorld, _NatureRendererBuffer[unity_InstanceID]);
         unity_WorldToObject = inverse(unity_ObjectToWorld);
+    #endif
+
+    #if defined(UNITY_PROCEDURAL_INSTANCING_ENABLED) && defined(NATURE_SHADERS)
+        PreCalculateNatureShadersData();
     #endif
 }
 

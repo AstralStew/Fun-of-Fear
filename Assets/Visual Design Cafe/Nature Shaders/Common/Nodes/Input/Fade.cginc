@@ -8,10 +8,7 @@
 
 #include "Wind Properties.cginc"
 
-/// <summary>
-/// Calculates a normalized fade value for wind distance fade and scale distance fade.
-/// </summary>
-void GetFade_float( 
+void GetFade(
     float3 objectPivot, // The object pivot in world space.
     out float windFade, 
     out float scaleFade )
@@ -34,18 +31,27 @@ void GetFade_float(
     #endif
 }
 
+/// <summary>
+/// Calculates a normalized fade value for wind distance fade and scale distance fade.
+/// </summary>
+void GetFade_float( 
+    float3 objectPivot, // The object pivot in world space.
+    out float windFade, 
+    out float scaleFade )
+{
+    #ifdef PER_OBJECT_VALUES_CALCULATED
+        windFade = g_WindFade;
+        scaleFade = g_ScaleFade;
+    #else
+        GetFade(objectPivot, windFade, scaleFade);
+    #endif
+}
+
 void ApplyScaleFade_OS_float( float3 vertex, float fade, out float3 vertexOut )
 {
     #if !defined(_TYPE_TREE_LEAVES) && !defined(_TYPE_TREE_BARK)
-        if(fade < 0.2)
-        {
-            vertexOut = vertex / 0;
-        }
-        else
-        {
-            vertexOut = vertex;
-            vertexOut.y *= fade;
-        }
+        vertexOut = vertex;
+        vertexOut.y *= fade / step(0.2, fade);
     #else
         vertexOut = vertex;
     #endif
@@ -54,16 +60,9 @@ void ApplyScaleFade_OS_float( float3 vertex, float fade, out float3 vertexOut )
 void ApplyScaleFade_float( float3 vertexWorldPosition, float3 objectPivot, float fade, out float3 vertexOut )
 {
     #if !defined(_TYPE_TREE_LEAVES) && !defined(_TYPE_TREE_BARK)
-        if(fade < 0.2)
-        {
-            vertexOut = vertexWorldPosition / 0;
-        }
-        else
-        {
-            vertexOut = vertexWorldPosition;
-            vertexOut.y = 
-                objectPivot.y + (vertexWorldPosition.y - objectPivot.y) * fade;
-        }
+        vertexOut = vertexWorldPosition;
+        vertexOut.y = 
+            objectPivot.y + (vertexWorldPosition.y - objectPivot.y) * fade / step(0.2, fade);
     #else
         vertexOut = vertexWorldPosition;
     #endif

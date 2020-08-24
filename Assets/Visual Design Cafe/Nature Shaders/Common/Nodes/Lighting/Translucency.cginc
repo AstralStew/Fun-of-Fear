@@ -12,6 +12,7 @@
 #ifdef STANDARD_RENDER_PIPELINE
 	#include "UnityCG.cginc"
 	#include "UnityShaderVariables.cginc"
+	#include "AutoLight.cginc"
 	#include "UnityPBSLighting.cginc"
 	#include "UnityStandardUtils.cginc"
 
@@ -23,11 +24,29 @@
 		half    shadowAttenuation;
 	};
 
+	// Get the main light. Only works for directional lights.
 	Light GetMainLight()
 	{
 		Light light;
 		light.direction = _WorldSpaceLightPos0.xyz;
 		light.distanceAttenuation = 1.0;
+		light.shadowAttenuation = 1.0;
+		light.color = _LightColor0 .rgb;
+
+		return light;
+	}
+
+	// Get the main light. Works for all lights but requires a vertex world position.
+	Light GetMainLight( float3 vertexWorldPosition )
+	{
+		Light light;
+		#if defined(POINT) || defined(POINT_COOKIE) || defined(SPOT)
+			light.direction = normalize(_WorldSpaceLightPos0.xyz - vertexWorldPosition);
+			light.distanceAttenuation = 1.0;
+		#else
+			light.direction = _WorldSpaceLightPos0.xyz;
+			light.distanceAttenuation = 1.0;
+		#endif
 		light.shadowAttenuation = 1.0;
 		light.color = _LightColor0 .rgb;
 
@@ -104,7 +123,11 @@ half3 Translucency(
 		half Smoothness;
 		half Occlusion;
 		half Alpha;
-		half3 Thickness;
+		#ifdef _PER_VERTEX_TRANSLUCENCY
+			half3 Translucency;
+		#else
+			half3 Thickness;
+		#endif
 	};
 
 	half4 LightingStandardCustom( SurfaceOutputStandardCustom s, half3 viewDir, UnityGI gi )
@@ -120,20 +143,27 @@ half3 Translucency(
 		r.Occlusion = s.Occlusion;
 		r.Alpha = s.Alpha;
 
-		TranslucencyInput input;
-		GetTranslucencyInput( s.Thickness, input );
+		#ifdef _PER_VERTEX_TRANSLUCENCY
+			half3 translucency = s.Translucency;
+		#else
+			#if defined(POINT) || defined(POINT_COOKIE) || defined(SPOT)
+				half3 translucency = half3(0,0,0);
+			#else
+				TranslucencyInput input;
+				GetTranslucencyInput( s.Thickness, input );
+				half3 translucency = 
+					input.Scale > 0
+						? Translucency( 
+							input, 
+							gi.indirect.diffuse,
+							s.Albedo,
+							s.Normal, 
+							viewDir, 
+							GetMainLight())
+						: half3(0,0,0);
+			#endif
+		#endif
 
-		half3 translucency = 
-			input.Scale > 0
-				? Translucency( 
-					input, 
-					gi.indirect.diffuse,
-					s.Albedo,
-					s.Normal, 
-					viewDir, 
-					GetMainLight())
-				: half3(0,0,0);
-			
 		half4 color = LightingStandard (r, viewDir, gi);
 		color.rgb += Overlay(translucency.rgb, color.rgb);
 		return color;

@@ -16,19 +16,24 @@ float3 GetWorldNormal(
     float3 vertexNormal, // The vertex normal in object space.
     float3 objectPivot ) // The object pivot in world space.
 {
-    #if defined(_TYPE_GRASS)
-        return GetAbsolutePositionWS( TransformObjectToWorld( float3(0, 0, 1) ) ) - objectPivot;
-    #elif defined(_TYPE_TREE_LEAVES)
-        return TransformWorldToObjectDir(vertexNormal);
-    #elif defined( _TYPE_TREE_BARK )
-        return GetAbsolutePositionWS( TransformObjectToWorld( float3(0, 0, 1) ) ) - objectPivot;
-    //#elif defined(_TYPE_PLANT)
+    #if defined(PER_OBJECT_VALUES_CALCULATED) && !defined(_TYPE_TREE_LEAVES)
+        return g_WorldNormal;
     #else
-        return GetAbsolutePositionWS( TransformObjectToWorld( float3(0, 0, 1) ) ) - objectPivot;
+        #ifdef _TYPE_TREE_LEAVES
+            // Scramble the vertex normals in case they are projected onto spheres
+            // or other geometry for smooth lighting. Otherwise the wind turbulence will end
+            // up as weird expanding and shrinking spheres.
+            // Define DO_NOT_SCRAMBLE_VERTEX_NORMALS in the shader if the tree models have
+            // accurate normals.
+            #ifndef DO_NOT_SCRAMBLE_VERTEX_NORMALS
+                return TransformObjectToWorldDir( vertexNormal.xzy );
+            #else
+                return TransformObjectToWorldDir( vertexNormal.xyz );
+            #endif
+        #else
+            return TransformObjectToWorldDir( float3(0, 0, 1) );
+        #endif
     #endif
-    //#else
-    //    #error Invalid Vegetation Type
-    //#endif
 }
 
 void GetWorldNormal_float( 

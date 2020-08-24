@@ -8,8 +8,8 @@
 struct CompressedFloat4x4
 {
     uint positionXY;
-    uint positionZ_scaleXZ;
-    uint scaleY_rotationX;
+    uint positionZ_scale;
+    uint rotationXY;
     uint rotationZW;
 };
 
@@ -18,8 +18,10 @@ float3 CompressionBase;
 float4 ReduceDensity;
 float4 CameraPosition;
 float4 CameraDirection;
+float SplitDistance;
 AppendStructuredBuffer<CompressedFloat4x4> Result;
-StructuredBuffer<float4x4> Instances;
+AppendStructuredBuffer<CompressedFloat4x4> Result_Split;
+StructuredBuffer<CompressedFloat4x4> Instances;
 
 StructuredBuffer<CompressedFloat4x4> Instances0;
 StructuredBuffer<CompressedFloat4x4> Instances1;
@@ -87,17 +89,46 @@ uint Count29;
 uint Count30;
 uint Count31;
 
-void UnpackInt( uint packedValue, out float a, out float b )
+uint CompressToUshort( float value, float precision )
 {
-    a = ( (float) (packedValue >> 16) ) / 65535.0;
-    b = ( (float) ((packedValue << 16) >> 16) ) / 65535.0;
+    return (uint)(value / precision * 65535.0);
 }
 
-uint PackInt( float a, float b )
+uint CompressToByte( float value, float precision )
 {
-    uint aa = uint(a * 65535.0);
-    uint bb = uint(b * 65535.0);
-    return (aa << 16) | (bb);
+    return (uint)(value / precision * 255.0);
+}
+
+float DecompressFromByte( uint value, float precision )
+{
+    return value / 255.0 * precision;
+}
+
+float DecompressFromUshort( uint value, float precision )
+{
+    return value / 65535.0 * precision;
+}
+
+void UnpackInt( uint packedInt, out uint a, out uint b )
+{
+    a = ( (uint) (packedInt >> 16) );
+    b = ( (uint) ((packedInt << 16) >> 16) );
+}
+
+void UnpackShort( uint packedShort, out uint a, out uint b )
+{
+    a = ( (uint) (packedShort >> 8) );
+    b = ( (uint) ((packedShort << 24) >> 24) );
+}
+
+uint PackInt( uint ushortA, uint ushortB )
+{
+    return ushortA << 16 | ushortB;
+}
+
+uint PackShort( uint byteA, uint byteB )
+{
+    return (byteA << 8) | byteB;
 }
 
 float4x4 QuaternionToMatrix(float4 quaternion)
@@ -140,46 +171,47 @@ float4x4 QuaternionToMatrix(float4 quaternion)
 
 void DecompressPosition( out float3 position, CompressedFloat4x4 compressedInstance )
 {
-    float positionX;
-    float positionY;
-    float positionZ;
-    float scale;
+    uint positionX, positionY, positionZ, scale;
     UnpackInt( compressedInstance.positionXY, positionX, positionY );
-    UnpackInt( compressedInstance.positionZ_scaleXZ, positionZ, scale );
-    positionX = positionX * CompressionRange.x + CompressionBase.x;
-    positionY = positionY * CompressionRange.y + CompressionBase.y;
-    positionZ = positionZ * CompressionRange.z + CompressionBase.z;
-    position = float3(positionX, positionY, positionZ);
+    UnpackInt( compressedInstance.positionZ_scale, positionZ, scale );
+    position = 
+        float3(
+            DecompressFromUshort(positionX, CompressionRange.x) + CompressionBase.x,
+            DecompressFromUshort(positionY, CompressionRange.y) + CompressionBase.y,
+            DecompressFromUshort(positionZ, CompressionRange.z) + CompressionBase.z );
 }
 
 void Scale( inout CompressedFloat4x4 compressedInstance, float scale )
 {
-    float positionZ;
-    float scaleXZ;
-    float scaleY;
-    float rotationX;
+    uint positionZ, scaleXYZ;
+    UnpackInt( compressedInstance.positionZ_scale, positionZ, scaleXYZ );
 
-    UnpackInt( compressedInstance.positionZ_scaleXZ, positionZ, scaleXZ );
-    UnpackInt( compressedInstance.scaleY_rotationX, scaleY, rotationX );
+    uint scaleX, scaleY;
+    UnpackShort( scaleXYZ, scaleX, scaleY );
 
-    scaleXZ *= scale;
-    scaleY *= scale;
-    
-    compressedInstance.positionZ_scaleXZ = PackInt( positionZ, scaleXZ );
-    compressedInstance.scaleY_rotationX = PackInt( scaleY, rotationX );
+    compressedInstance.positionZ_scale = 
+        PackInt(
+            positionZ,
+            PackShort(
+                CompressToByte(DecompressFromByte(scaleX, 16.0) * scale, 16.0),
+                CompressToByte(DecompressFromByte(scaleY, 16.0) * scale, 16.0) ) );
 }
 
 void Add( uint id, StructuredBuffer<CompressedFloat4x4> buffer, uint count )
 {
-    if( count == 0 || id >= count )
+	id -= 1;
+
+    if( id >= count )
         return;
 
     CompressedFloat4x4 instance = buffer[id];
+
+    float3 position;
+    DecompressPosition( position, instance );
+    float distance = length(position - CameraPosition.xyz);
+
     if( ReduceDensity.x < 1 )
     {
-        float3 position;
-        DecompressPosition( position, buffer[id] );
-        float distance = length(position - CameraPosition.xyz);
         float density = ReduceDensity.x;
         float fadeStart = ReduceDensity.y;
         float fadeEnd = ReduceDensity.z;
@@ -193,6 +225,9 @@ void Add( uint id, StructuredBuffer<CompressedFloat4x4> buffer, uint count )
     }
     
     Result.Append( instance );
+
+    if( distance < SplitDistance )
+        Result_Split.Append( instance );
 }
 
 [numthreads(THREADS, 1, 1)]

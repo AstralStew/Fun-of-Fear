@@ -62,8 +62,12 @@ void Wind_float(
         // Distance fade.
         float windFade;
         float scaleFade;
-        GetFade_float( pivot, windFade, scaleFade );
-        windFade = 1;
+        #ifdef PER_OBJECT_VALUES_CALCULATED
+            windFade = g_WindFade;
+            scaleFade = g_ScaleFade;
+        #else
+            GetFade_float( pivot, windFade, scaleFade );
+        #endif
 
         // Apply wind to vertex.
         ApplyWind_float( vertexWorldPosition.xyz, pivot, wind, mask, windFade, vertexOut );
@@ -74,7 +78,7 @@ void Wind_float(
     #if defined(_TYPE_GRASS)
         normalOut = 
             normalize(
-                normal + TransformWorldToObjectDir( vertexOut - vertexWorldPosition + float3(0,1,0) ) );
+                normal + TransformWorldToObjectDir( vertexOut - vertexWorldPosition + float3(0,.9,0) ) );
     #else
         normalOut = normal;
     #endif
