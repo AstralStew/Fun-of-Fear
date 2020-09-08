@@ -30,6 +30,8 @@ namespace Paperticket {
 
         [Header("Chasing Controls")]
 
+        [SerializeField] private float chaseTargetDistance;
+
         [SerializeField] private float chasingSpeed;
         [SerializeField] private float chasingAngularSpeed;
         [SerializeField] private float chasingAcceleration;
@@ -92,15 +94,15 @@ namespace Paperticket {
         }
 
         private void OnEnable() {
-            ghostPerception.onSeePlayer += StartChasingPlayer;
-            ghostPerception.onLosePlayer += StartSearchingForPlayer;
-            ghostPerception.onForgottenPlayer += StartWandering;
+            ghostPerception.onSeePlayer += StartNewChase;
+            //ghostPerception.onLosePlayer += StartSearchingForPlayer;
+            //ghostPerception.onForgottenPlayer += StartWandering;
             ghostPerception.onReachPlayer += StartScaringPlayer;
         }
         private void OnDisable() {
-            ghostPerception.onSeePlayer -= StartChasingPlayer;
-            ghostPerception.onLosePlayer -= StartSearchingForPlayer;
-            ghostPerception.onForgottenPlayer -= StartWandering;
+            ghostPerception.onSeePlayer -= StartNewChase;
+            //ghostPerception.onLosePlayer -= StartSearchingForPlayer;
+            //ghostPerception.onForgottenPlayer -= StartWandering;
             ghostPerception.onReachPlayer -= StartScaringPlayer;
         }
 
@@ -113,140 +115,165 @@ namespace Paperticket {
 
         /// CHASING FUNCTIONS
 
-        void StartChasingPlayer() {
+        void StartNewChase() {
             if (ghostPerception.HasReachedPlayer) return;
             if (debugging) Debug.Log("[GhostMovement] Aight, I'm gonna start chasing the player now (^w^) ");
 
-            lostPlayer = false;
-
-            //if (currentCoroutine != null) {
-            //    StopCoroutine(currentCoroutine);
-            //}
-
             StopAllCoroutines();
+            Destroy(agent);
 
-            currentCoroutine = StartCoroutine(Chasing());
-
+            StartCoroutine(ChasingThePlayer());
         }
-        void StartSearchingForPlayer() {
-            if (ghostPerception.HasReachedPlayer) return;
-            if (debugging) Debug.Log("[GhostMovement] Gotta try and catch up to where they were! (>_<) ");
 
-            //if (currentCoroutine != null) {
-            //    lostPlayer = true;
-            //    StopCoroutine(currentCoroutine);
-            //}
+        IEnumerator ChasingThePlayer() {
 
-            lostPlayer = true;
-            StopAllCoroutines();
+            // Turn to face the player
+            yield return StartCoroutine(TurningToFacePlayer());
 
-            currentCoroutine = StartCoroutine(Searching());
-        }
-        void StartWandering() {
-            if (ghostPerception.HasReachedPlayer) return;
-            if (debugging) Debug.Log("[GhostMovement] I'm going back to wandering, this is boring (>->) ");
-
-            StopAllCoroutines();
-            lostPlayer = false;
-            PickNewWaypoint();
-        }
-      
-        IEnumerator Chasing() {
-                       
-            agent.isStopped = false;
-            agent.speed = chasingSpeed;
-            agent.angularSpeed = chasingAngularSpeed;
-            agent.acceleration = chasingAcceleration;
-            agent.autoBraking = true;
-
-            while (!lostPlayer) {
-                
-                if (currentTarget != ghostPerception.LastPlayerPosition) {
-                    agent.SetDestination(ghostPerception.LastPlayerPosition);
-
-                }
-                currentTarget = ghostPerception.LastPlayerPosition;
-                               
-                // Wait a while before checking again
-                yield return new WaitForSeconds(playerPosCheckFreq == 0 ? Time.deltaTime : Mathf.Abs(playerPosCheckFreq));
-            }
+            // Calculate a point just before the player
+            Vector3 currentPos = transform.position;
+            Vector3 vector = ghostPerception.RealDirectionToPlayer;
+            Vector3 dir = vector.normalized;
             
-        }
-        IEnumerator Searching() {
-                        
-            agent.SetDestination(ghostPerception.LastPlayerPosition);
-            agent.autoBraking = true;
+            Vector3 finalPos = currentPos + (vector - (dir * chaseTargetDistance));
 
-            bool reachedLastSeenPos = false;
-            bool turnedTowardsPlayer = false;
-            float t = 0;
-            float timerSavePlayerPos = 0;
-            Vector3 guidingPos = Vector3.zero;
-            Coroutine waitCo = null;
-            while (lostPlayer) {
+            // Move towards player's position until player is reached
+            while (!ghostPerception.HasReachedPlayer) {
+                transform.position = Vector3.MoveTowards(transform.position, finalPos, chasingSpeed * Time.deltaTime);
                 yield return null;
-
-                // Save the player's position 1 seconds after losing them
-                if (!turnedTowardsPlayer && guidingPos == Vector3.zero) {
-                    timerSavePlayerPos += Time.deltaTime;
-                    if (timerSavePlayerPos > 1f) {
-                        guidingPos = ghostPerception.RealPlayerPosition;
-                    }
-                }
-
-                // Move to the last known player position                
-                if (!reachedLastSeenPos) {
-                    t += Time.deltaTime;
-                    if (t > (destinationCheckFreq == 0 ? Time.deltaTime : Mathf.Abs(destinationCheckFreq))) {
-                        t = 0;
-                        // Determine if we are still attempting to calculate a path
-                        if (!agent.pathPending) {
-                            // Are we close enough to the minimum stopping distance?
-                            if (agent.remainingDistance <= agent.stoppingDistance) {
-                                // Either there's no path left to take, or our speed is close enough to 0 
-                                if (!agent.hasPath || Mathf.Approximately(agent.velocity.sqrMagnitude, 0f)) {
-                                    if (debugging) Debug.Log("[GhostMovement] Reached the last known player position...");
-                                    reachedLastSeenPos = true;
-                                    continue;
-                                    
-                                } else if (framedebugging) Debug.Log("[GhostMovement] Agent has path, or velocity is still too high..");
-                            } else if (framedebugging) Debug.Log("[GhostMovement] Remaining distance greater than stopping distance..");
-                        } else if (framedebugging) Debug.Log("[GhostMovement] Path is pending..");
-                    }
-
-                // Look around to see if we can find the player
-                } else {
-
-                    // Turn towards the direction the player headed
-                    if (!turnedTowardsPlayer) {
-
-                        // Rotate to face the player's heading
-                        agent.SetDestination(guidingPos);
-                        yield return StartCoroutine(TurningToTargetDirection());
-                        if (debugging) Debug.Log("[GhostMovement] Haha gotcha... Wait, they aren't here! (OxO)' ");
-
-                        // Set the agent back to wandering speed
-                        agent.speed = wanderingSpeed;
-                        agent.angularSpeed = wanderingAngularSpeed;
-
-                        turnedTowardsPlayer = true;                    
-                    }
-                    
-                    // Pause for a few seconds
-                    if (debugging) Debug.Log("[GhostMovement] Hmm, where did the player go...?");
-                    yield return new WaitForSeconds(chasingTurnPauseDuration + Random.Range(-turnPauseVariance, turnPauseVariance));
-
-                    // Rotate to face a random direction
-                    agent.SetDestination(new Vector3(transform.position.x + Random.Range(-1f, 1f), transform.position.y, transform.position.z + Random.Range(-1f, 1f)));
-
-                    if (debugging) Debug.Log("[GhostMovement] Maybe if I turn towards here...?");
-                    yield return StartCoroutine(TurningToTargetDirection());                    
-
-                }
-                
             }
+
+            Debug.Log("FINISHED CHASING THE PLAYER");
+
         }
-        
+
+        //void StartChasingPlayer() {
+        //    if (ghostPerception.HasReachedPlayer) return;
+        //    if (debugging) Debug.Log("[GhostMovement] Aight, I'm gonna start chasing the player now (^w^) ");
+
+        //    lostPlayer = false;
+
+        //    StopAllCoroutines();
+
+        //    currentCoroutine = StartCoroutine(Chasing());
+
+        //}
+        //void StartSearchingForPlayer() {
+        //    if (ghostPerception.HasReachedPlayer) return;
+        //    if (debugging) Debug.Log("[GhostMovement] Gotta try and catch up to where they were! (>_<) ");
+
+        //    lostPlayer = true;
+        //    StopAllCoroutines();
+
+        //    currentCoroutine = StartCoroutine(Searching());
+        //}
+        //void StartWandering() {
+        //    if (ghostPerception.HasReachedPlayer) return;
+        //    if (debugging) Debug.Log("[GhostMovement] I'm going back to wandering, this is boring (>->) ");
+
+        //    StopAllCoroutines();
+        //    lostPlayer = false;
+        //    PickNewWaypoint();
+        //}
+
+        //IEnumerator Chasing() {
+
+        //    agent.isStopped = false;
+        //    agent.speed = chasingSpeed;
+        //    agent.angularSpeed = chasingAngularSpeed;
+        //    agent.acceleration = chasingAcceleration;
+        //    agent.autoBraking = true;
+
+        //    while (!lostPlayer) {
+
+        //        if (currentTarget != ghostPerception.LastPlayerPosition) {
+        //            agent.SetDestination(ghostPerception.LastPlayerPosition);
+
+        //        }
+        //        currentTarget = ghostPerception.LastPlayerPosition;
+
+        //        // Wait a while before checking again
+        //        yield return new WaitForSeconds(playerPosCheckFreq == 0 ? Time.deltaTime : Mathf.Abs(playerPosCheckFreq));
+        //    }
+
+        //}
+
+
+        //IEnumerator Searching() {
+
+        //    agent.SetDestination(ghostPerception.LastPlayerPosition);
+        //    agent.autoBraking = true;
+
+        //    bool reachedLastSeenPos = false;
+        //    bool turnedTowardsPlayer = false;
+        //    float t = 0;
+        //    float timerSavePlayerPos = 0;
+        //    Vector3 guidingPos = Vector3.zero;
+        //    Coroutine waitCo = null;
+        //    while (lostPlayer) {
+        //        yield return null;
+
+        //        // Save the player's position 1 seconds after losing them
+        //        if (!turnedTowardsPlayer && guidingPos == Vector3.zero) {
+        //            timerSavePlayerPos += Time.deltaTime;
+        //            if (timerSavePlayerPos > 1f) {
+        //                guidingPos = ghostPerception.RealPlayerPosition;
+        //            }
+        //        }
+
+        //        // Move to the last known player position                
+        //        if (!reachedLastSeenPos) {
+        //            t += Time.deltaTime;
+        //            if (t > (destinationCheckFreq == 0 ? Time.deltaTime : Mathf.Abs(destinationCheckFreq))) {
+        //                t = 0;
+        //                // Determine if we are still attempting to calculate a path
+        //                if (!agent.pathPending) {
+        //                    // Are we close enough to the minimum stopping distance?
+        //                    if (agent.remainingDistance <= agent.stoppingDistance) {
+        //                        // Either there's no path left to take, or our speed is close enough to 0 
+        //                        if (!agent.hasPath || Mathf.Approximately(agent.velocity.sqrMagnitude, 0f)) {
+        //                            if (debugging) Debug.Log("[GhostMovement] Reached the last known player position...");
+        //                            reachedLastSeenPos = true;
+        //                            continue;
+
+        //                        } else if (framedebugging) Debug.Log("[GhostMovement] Agent has path, or velocity is still too high..");
+        //                    } else if (framedebugging) Debug.Log("[GhostMovement] Remaining distance greater than stopping distance..");
+        //                } else if (framedebugging) Debug.Log("[GhostMovement] Path is pending..");
+        //            }
+
+        //        // Look around to see if we can find the player
+        //        } else {
+
+        //            // Turn towards the direction the player headed
+        //            if (!turnedTowardsPlayer) {
+
+        //                // Rotate to face the player's heading
+        //                agent.SetDestination(guidingPos);
+        //                yield return StartCoroutine(TurningToTargetDirection());
+        //                if (debugging) Debug.Log("[GhostMovement] Haha gotcha... Wait, they aren't here! (OxO)' ");
+
+        //                // Set the agent back to wandering speed
+        //                agent.speed = wanderingSpeed;
+        //                agent.angularSpeed = wanderingAngularSpeed;
+
+        //                turnedTowardsPlayer = true;                    
+        //            }
+
+        //            // Pause for a few seconds
+        //            if (debugging) Debug.Log("[GhostMovement] Hmm, where did the player go...?");
+        //            yield return new WaitForSeconds(chasingTurnPauseDuration + Random.Range(-turnPauseVariance, turnPauseVariance));
+
+        //            // Rotate to face a random direction
+        //            agent.SetDestination(new Vector3(transform.position.x + Random.Range(-1f, 1f), transform.position.y, transform.position.z + Random.Range(-1f, 1f)));
+
+        //            if (debugging) Debug.Log("[GhostMovement] Maybe if I turn towards here...?");
+        //            yield return StartCoroutine(TurningToTargetDirection());                    
+
+        //        }
+
+        //    }
+        //}
+
 
         /// WANDERING FUNCTIONS
         void PickNewWaypoint() {
@@ -261,10 +288,6 @@ namespace Paperticket {
             previousIndex = newIndex;
 
             if (debugging) Debug.Log("[GhostMovement] Picked " + waypoints[newIndex] + "!");
-
-            //Turn off the navmesh agents own rotation
-            //agent.updatePosition = false;
-            //agent.updateRotation = false;
 
             // Set the waypoint as the next destination
             currentTarget = waypoints[newIndex].position;
@@ -347,32 +370,41 @@ namespace Paperticket {
 
         /// REACH PLAYER FUNCTIONS
 
+        //void StartScaringPlayer() {
+        //    if (debugging) Debug.Log("[GhostMovement] I have caught the player, time to scare them!! (nwn)");
+
+        //    agent.isStopped = true;
+        //    agent.speed = 0;
+        //    agent.angularSpeed = chasingAngularSpeed;
+        //    //agent.acceleration = 0;
+        //    agent.autoBraking = false;
+
+        //    StopAllCoroutines();
+
+        //    currentCoroutine = StartCoroutine(ScaringPlayer());
+
+        //}
+
+        //IEnumerator ScaringPlayer() {
+
+        //    // Rotate to face the player's heading
+        //    Destroy(agent);
+        //    yield return StartCoroutine(TurningToFacePlayer());
+        //    if (debugging) Debug.Log("[GhostMovement] Finished turning to player!");
+
+        //    // Remain stopped until the escape animations has played
+
+        //}
+
         void StartScaringPlayer() {
             if (debugging) Debug.Log("[GhostMovement] I have caught the player, time to scare them!! (nwn)");
-
-            agent.isStopped = true;
-            agent.speed = 0;
-            agent.angularSpeed = chasingAngularSpeed;
-            //agent.acceleration = 0;
-            agent.autoBraking = false;
             
-            StopAllCoroutines();
+            //StopAllCoroutines();
 
-            currentCoroutine = StartCoroutine(ScaringPlayer());
+            //currentCoroutine = StartCoroutine(ScaringPlayer());
 
         }
 
-        IEnumerator ScaringPlayer() {
-
-            // Rotate to face the player's heading
-            //agent.SetDestination(ghostPerception.RealPlayerPosition);
-            Destroy(agent);
-            yield return StartCoroutine(TurningToFacePlayer());
-            if (debugging) Debug.Log("[GhostMovement] Finished turning to player!");
-
-            // Remain stopped until the escape animations has played
-            
-        }
 
 
 
@@ -418,7 +450,6 @@ namespace Paperticket {
 
         IEnumerator TurningToFacePlayer() {
 
-            //agent.isStopped = true;
 
             if (debugging) Debug.Log("[GhostMovement] Turning to face player..");
 

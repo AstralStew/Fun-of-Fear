@@ -35,15 +35,16 @@ namespace Paperticket {
         public Quaternion HeadsetRotation() {
             return Quaternion.Euler(new Vector3(0, headProxy.rotation.eulerAngles.y, 0));
         }
-        
+
         enum Handedness { Left, Right, Both }
 
         [Header("Read Only")]
-        
+
         public Transform headProxy;
         public BasicVRMovement playerMovement;
         public Transform leftController;
         public Transform rightController;
+        public TapeRecorder tapeRecorder;
         SnapTurnProvider snapTurnProvider;
 
         [Space(10)]
@@ -60,10 +61,21 @@ namespace Paperticket {
 
         public bool PlayerCanMove {
             get { return playerMovement.AllowMovement; }
-            set { playerMovement.AllowMovement = value; 
-                  snapTurnProvider.enabled = value; }
+            set { playerMovement.AllowMovement = value;
+                snapTurnProvider.enabled = value; }
         }
 
+        public bool ToggleTapeRecorder {
+            get { return tapeRecorder.gameObject.activeInHierarchy; }
+            set { if (tapeRecorder == null) {
+                    Debug.LogError("[PTUtilities] ERROR -> No Tape Recorder defined!");
+                    return;
+                }
+                if (_Debug) Debug.Log("[PTUTilities] Tape Recorder toggled to " + value);
+                tapeRecorder.gameObject.SetActive(value);
+            }
+        }
+        
 
 
 
@@ -73,7 +85,7 @@ namespace Paperticket {
 
 
 
-        void Awake() {
+void Awake() {
 
             // Create an instanced version of this script, or destroy it if one already exists
             if (instance == null) {
@@ -121,9 +133,11 @@ namespace Paperticket {
                 enabled = false;
             }                  
             
-        }     
+        }
 
 
+
+        
 
 
         //void FixedUpdate() {

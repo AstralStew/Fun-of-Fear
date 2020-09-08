@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,11 +9,14 @@ namespace Paperticket {
 
         [SerializeField] bool debugging;
 
+        public LayerMask layers;
+
+        [SerializeField] bool useTag;
+        [SerializeField] string _tag;
+
 
 
         [Header("Controls")]
-        public LayerMask layers;
-
 
         [Space(10)]
         public bool AddNarrationClip;
@@ -33,31 +37,50 @@ namespace Paperticket {
         [SerializeField] bool activated;
 
 
-        public void OnTriggerEnter( Collider other ) {
+        public void OnTriggerStay( Collider other ) {
             if (activated) return;
-            
+
             // Check the triggers layer
             if (((1 << other.gameObject.layer) & layers) != 0) {
 
-                // Check if this is a narration clip
-                if (AddNarrationClip) {
-                    //TapeRecorder.instance.AddNarrationClip(audioClip);
-                    TapeRecorder.instance.AddNarrationClip(narrativeClip);
-                } 
-                
-                if (sendEvent) {
-                    audioEvent.Invoke();
-                }
+                if (useTag && other.gameObject.tag != _tag) return;
 
-                if (setFootsteps) {
-                    AudioManager.instance.SetFootstepType(footstepType);
-                    AudioManager.instance.SetFootstepVolume(footstepVolume);
-                    AudioManager.instance.StartFootsteps();
-                }
-
-                activated = true;
-                gameObject.SetActive(false);
+                ActivateTrigger();
             }
+        }
+        public void OnTriggerEnter( Collider other ) {
+            if (activated) return;
+
+            // Check the triggers layer
+            if (((1 << other.gameObject.layer) & layers) != 0) {
+
+                if (useTag && other.gameObject.tag != _tag) return;
+
+                ActivateTrigger();
+            }
+        }
+
+        void ActivateTrigger() {
+
+            // Check if this is a narration clip
+            if (AddNarrationClip) {
+                //TapeRecorder.instance.AddNarrationClip(audioClip);
+                TapeRecorder.instance.AddNarrationClip(narrativeClip);
+            }
+
+            if (sendEvent) {
+                audioEvent.Invoke();
+            }
+
+            if (setFootsteps) {
+                AudioManager.instance.SetFootstepType(footstepType);
+                AudioManager.instance.SetFootstepVolume(footstepVolume);
+                AudioManager.instance.StartFootsteps();
+            }
+
+            activated = true;
+            gameObject.SetActive(false);
+
         }
 
 

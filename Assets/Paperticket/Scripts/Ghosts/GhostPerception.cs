@@ -104,37 +104,116 @@ namespace Paperticket {
 
 
         /// PERCEPTION FUNCTIONS        
+        //IEnumerator CheckForPlayer() {
+        //    Vector3 dir;
+        //    Color col = Color.red;
+            
+        //    while (!hasReachedPlayer) {
+                
+        //        // Bail if the player is too far away
+        //        if (canSeePlayer || RealDirectionToPlayer.magnitude <= sightRange) {
+        //            if (framedebugging) Debug.Log("[GhostPerception] Current range from player: " + (int)RealDirectionToPlayer.magnitude);
+
+                    
+        //            // Bail if the player is outside of the max sight angle
+        //            if (canSeePlayer || Vector3.Angle(sightTransform.forward, RealDirectionToPlayer) <= sightMaxAngle) {
+        //                if (framedebugging) Debug.Log("[GhostPerception] Current angle to player: " + (int)Vector3.Angle(sightTransform.forward, RealDirectionToPlayer));
+
+
+        //                // Check if we've reached the player and stop searching
+        //                if (canSeePlayer && RealDirectionToPlayer.magnitude <= reachRange) {
+        //                    if (debugging) Debug.Log("[GhostPerception] I CAUGHT THE PLAYER!! (^w^)");
+
+        //                    onReachPlayer.Invoke();
+        //                    hasReachedPlayer = true;
+        //                    SeePlayerEvents.Invoke();
+        //                    //canSeePlayer = true;
+
+        //                    if (searchingCoroutine != null) {
+        //                        StopCoroutine(searchingCoroutine);
+        //                        if (debugging) Debug.Log("[GhostPerception] The 'Searching for lost player' coroutine was running, stopping it now.");
+        //                    }
+        //                    continue;
+        //                }
+
+        //                // Shoot a SphereCast towards the player position (to allow crouching behind things etc.)
+        //                RaycastHit raycastHit = new RaycastHit();
+        //                if (Physics.SphereCast(sightTransform.position, sightSphereRadius, RealDirectionToPlayer, out raycastHit, sightRange, targetLayers.value)) {
+
+        //                    if (raycastHit.transform.gameObject.layer == LayerMask.NameToLayer("Player")) {
+
+        //                        lastSeenPlayerPos = raycastHit.transform.position;
+
+        //                        // Trigger an event if we are just seeing player
+        //                        if (!canSeePlayer) {
+        //                            if (debugging) {
+        //                                col = Color.green;
+        //                                Debug.Log("[GhostPerception] HEY I just saw the player! (0w0)");
+        //                            }
+
+        //                            onSeePlayer.Invoke();
+        //                            SeePlayerEvents.Invoke();
+        //                            canSeePlayer = true;
+
+        //                            if (searchingCoroutine != null) {
+        //                                StopCoroutine(searchingCoroutine);
+        //                                if (debugging) Debug.Log("[GhostPerception] The 'Searching for lost player' coroutine was running, stopping it now.");
+        //                            }
+        //                        }
+
+        //                        // Trigger an event if we have just lost the player
+        //                    } 
+        //                    //else if (canSeePlayer) {
+        //                    //    if (debugging) {
+        //                    //        col = Color.red;
+        //                    //        Debug.Log("[GhostPerception] Damn, I lost the player! (>m<)");
+        //                    //    }
+
+        //                    //    onLosePlayer.Invoke();
+        //                    //    canSeePlayer = false;
+
+        //                    //    // Start a timer for how long we'll look for the lost player before giving up
+        //                    //    if (searchingCoroutine != null) {
+        //                    //        StopCoroutine(searchingCoroutine);
+        //                    //        if (debugging) Debug.Log("[GhostPerception] The 'Searching for lost player' coroutine was already started, restarting it now.");
+        //                    //    }
+        //                    //    searchingCoroutine = StartCoroutine(SearchingCoroutine());
+        //                    //}
+        //                }
+
+        //                // Draw the debug rays
+        //                if (debugging) {
+        //                    Debug.DrawRay(sightTransform.position, RealDirectionToPlayer * sightRange, col);
+        //                    Debug.DrawRay(sightTransform.position + (sightTransform.right * sightSphereRadius), RealDirectionToPlayer * sightRange, col);
+        //                    Debug.DrawRay(sightTransform.position - (sightTransform.right * sightSphereRadius), RealDirectionToPlayer * sightRange, col);
+        //                    Debug.DrawRay(sightTransform.position + (sightTransform.up * sightSphereRadius), RealDirectionToPlayer * sightRange, col);
+        //                    Debug.DrawRay(sightTransform.position - (sightTransform.up * sightSphereRadius), RealDirectionToPlayer * sightRange, col);
+        //                }
+
+        //            } else if (framedebugging) Debug.Log("[GhostPerception] Player is outside of the maximum sight angle. (current angle: " + (int)Vector3.Angle(sightTransform.forward, RealDirectionToPlayer) + ")");
+        //        } else if (framedebugging) Debug.Log("[GhostPerception] Player is outside of the maximum sight range. (current range: " + (int)RealDirectionToPlayer.magnitude + ")");
+        //        // Wait a while before checking again
+        //        yield return new WaitForSeconds(sightCheckFrequency == 0 ? Time.deltaTime : Mathf.Abs(sightCheckFrequency));
+
+        //    }
+
+        //}
+
         IEnumerator CheckForPlayer() {
             Vector3 dir;
             Color col = Color.red;
-            
-            while (!hasReachedPlayer) {
-                
+
+            while (!canSeePlayer) {
+                                
                 // Bail if the player is too far away
-                if (canSeePlayer || RealDirectionToPlayer.magnitude <= sightRange) {
+                if (RealDirectionToPlayer.magnitude <= sightRange) {
                     if (framedebugging) Debug.Log("[GhostPerception] Current range from player: " + (int)RealDirectionToPlayer.magnitude);
 
-                    
+
                     // Bail if the player is outside of the max sight angle
-                    if (canSeePlayer || Vector3.Angle(sightTransform.forward, RealDirectionToPlayer) <= sightMaxAngle) {
+                    if (Vector3.Angle(sightTransform.forward, RealDirectionToPlayer) <= sightMaxAngle) {
                         if (framedebugging) Debug.Log("[GhostPerception] Current angle to player: " + (int)Vector3.Angle(sightTransform.forward, RealDirectionToPlayer));
-
-
-                        // Check if we've reached the player and stop searching
-                        if (canSeePlayer && RealDirectionToPlayer.magnitude <= reachRange) {
-                            if (debugging) Debug.Log("[GhostPerception] I CAUGHT THE PLAYER!! (^w^)");
-
-                            onReachPlayer.Invoke();
-                            hasReachedPlayer = true;
-                            SeePlayerEvents.Invoke();
-                            //canSeePlayer = true;
-
-                            if (searchingCoroutine != null) {
-                                StopCoroutine(searchingCoroutine);
-                                if (debugging) Debug.Log("[GhostPerception] The 'Searching for lost player' coroutine was running, stopping it now.");
-                            }
-                            continue;
-                        }
+                        
 
                         // Shoot a SphereCast towards the player position (to allow crouching behind things etc.)
                         RaycastHit raycastHit = new RaycastHit();
@@ -144,41 +223,13 @@ namespace Paperticket {
 
                                 lastSeenPlayerPos = raycastHit.transform.position;
 
-                                // Trigger an event if we are just seeing player
-                                if (!canSeePlayer) {
-                                    if (debugging) {
-                                        col = Color.green;
-                                        Debug.Log("[GhostPerception] HEY I just saw the player! (0w0)");
-                                    }
+                                if (debugging) { col = Color.green; Debug.Log("[GhostPerception] HEY I just saw the player! (0w0)"); }
 
-                                    onSeePlayer.Invoke();
-                                    SeePlayerEvents.Invoke();
-                                    canSeePlayer = true;
-
-                                    if (searchingCoroutine != null) {
-                                        StopCoroutine(searchingCoroutine);
-                                        if (debugging) Debug.Log("[GhostPerception] The 'Searching for lost player' coroutine was running, stopping it now.");
-                                    }
-                                }
-
-                                // Trigger an event if we have just lost the player
-                            } 
-                            //else if (canSeePlayer) {
-                            //    if (debugging) {
-                            //        col = Color.red;
-                            //        Debug.Log("[GhostPerception] Damn, I lost the player! (>m<)");
-                            //    }
-
-                            //    onLosePlayer.Invoke();
-                            //    canSeePlayer = false;
-
-                            //    // Start a timer for how long we'll look for the lost player before giving up
-                            //    if (searchingCoroutine != null) {
-                            //        StopCoroutine(searchingCoroutine);
-                            //        if (debugging) Debug.Log("[GhostPerception] The 'Searching for lost player' coroutine was already started, restarting it now.");
-                            //    }
-                            //    searchingCoroutine = StartCoroutine(SearchingCoroutine());
-                            //}
+                                onSeePlayer.Invoke();
+                                SeePlayerEvents.Invoke();
+                                canSeePlayer = true;
+                                
+                            }
                         }
 
                         // Draw the debug rays
@@ -190,29 +241,44 @@ namespace Paperticket {
                             Debug.DrawRay(sightTransform.position - (sightTransform.up * sightSphereRadius), RealDirectionToPlayer * sightRange, col);
                         }
 
-                    } else if (framedebugging) Debug.Log("[GhostPerception] Player is outside of the maximum sight angle. (current angle: " + (int)Vector3.Angle(sightTransform.forward, RealDirectionToPlayer) + ")");
-                } else if (framedebugging) Debug.Log("[GhostPerception] Player is outside of the maximum sight range. (current range: " + (int)RealDirectionToPlayer.magnitude + ")");
-                // Wait a while before checking again
-                yield return new WaitForSeconds(sightCheckFrequency == 0 ? Time.deltaTime : Mathf.Abs(sightCheckFrequency));
+                    } //else if (framedebugging) Debug.Log("[GhostPerception] Player is outside of the maximum sight angle. (current angle: " + (int)Vector3.Angle(sightTransform.forward, RealDirectionToPlayer) + ")");
+                } //else if (framedebugging) Debug.Log("[GhostPerception] Player is outside of the maximum sight range. (current range: " + (int)RealDirectionToPlayer.magnitude + ")");
 
+                // Wait a while before checking again
+                if (sightCheckFrequency <= Time.deltaTime) yield return null;
+                else yield return new WaitForSeconds(sightCheckFrequency);
+
+            }
+
+            while (!hasReachedPlayer) {
+                //// Check if we've reached the player and stop searching
+                if (RealDirectionToPlayer.magnitude <= reachRange) {
+                    if (debugging) Debug.Log("[GhostPerception] I CAUGHT THE PLAYER!! (^w^)");
+
+                    onReachPlayer.Invoke();
+                    hasReachedPlayer = true;
+                    SeePlayerEvents.Invoke();
+                    
+                }
+                yield return null;
             }
 
         }
 
-        IEnumerator SearchingCoroutine() {
+        //IEnumerator SearchingCoroutine() {
 
-            if (debugging) Debug.Log("[GhostPerception] Searching to find the player I lost! (>->)");
+        //    if (debugging) Debug.Log("[GhostPerception] Searching to find the player I lost! (>->)");
 
-            // Spend an amount of time still searching for the player
-            yield return new WaitForSeconds(searchingDuration);
+        //    // Spend an amount of time still searching for the player
+        //    yield return new WaitForSeconds(searchingDuration);
 
-            // Trigger an event to signal that we have given up on the player
-            onForgottenPlayer.Invoke();
-            lastSeenPlayerPos = Vector3.zero;
+        //    // Trigger an event to signal that we have given up on the player
+        //    onForgottenPlayer.Invoke();
+        //    lastSeenPlayerPos = Vector3.zero;
 
-            if (debugging) Debug.Log("[GhostPerception] I couldn't find the player I lost, giving up (.__.) ");
+        //    if (debugging) Debug.Log("[GhostPerception] I couldn't find the player I lost, giving up (.__.) ");
 
-        }
+        //}
 
     }
 

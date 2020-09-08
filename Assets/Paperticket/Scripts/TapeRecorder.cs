@@ -80,7 +80,9 @@ public class TapeRecorder : MonoBehaviour {
 
     void Awake() {
         if (instance!=null) {Debug.LogError("[TapeRecorderer] ERROR -> instance already defined! disabling"); enabled=false;} 
-        else instance=this;  
+        else instance=this;
+
+        Play();
     }
 
     public void Play() {
@@ -176,27 +178,25 @@ public class TapeRecorder : MonoBehaviour {
 
 
 
-    //public void AddNarrationClip( AudioClip clip ) {
-
-    //    if (!clipQueue.Contains(clip)) {
-    //        if (debugging) Debug.Log("[TapeRecorderer] Added narration audio (" + clip.name + ") to clip queue");
-    //        clipQueue.Add(clip);
-    //    } else Debug.LogWarning("[TapeRecorderer] Narration audio (" + clip.name + ") already in clip queue, disregarding");
-
-    //    // Start playin the new clip
-    //    PlayAtIndex(clipQueue.Count - 1);
-    //}
-
-
     public void AddNarrationClip( NarrativeClip clip ) {
-
-        if (!narrativeQueue.Contains(clip)) {
-            if (debugging) Debug.Log("[TapeRecorderer] Added narration audio (" + clip.name + ") to clip queue");
-            narrativeQueue.Add(clip);
-        } else Debug.LogWarning("[TapeRecorderer] Narration audio (" + clip.name + ") already in clip queue, disregarding");
         
-        // Start playin the new clip
-        PlayAtIndex(narrativeQueue.Count - 1);
+        // Bail if the queue already contains this clip
+        if (narrativeQueue.Contains(clip)) {
+            Debug.LogWarning("[TapeRecorderer] Narration audio (" + clip.name + ") already in clip queue, disregarding");
+            return;
+        } else if (debugging) Debug.Log("[TapeRecorderer] Added narration audio (" + clip.name + ") to clip queue");
+                       
+        // Add the clip and sort the list alphabetically
+        narrativeQueue.Add(clip);
+        narrativeQueue.Sort(delegate ( NarrativeClip i1, NarrativeClip i2 ) { return i1.name.CompareTo(i2.name); });
+
+
+        // If playing, increase the clip index if the list was pushed down past it
+        if (playing) {        
+            if (narrativeQueue.IndexOf(clip) <= clipIndex) clipIndex += 1;
+
+        // If nothing is playing, start playin the new clip
+        } else PlayAtIndex(narrativeQueue.IndexOf(clip)); 
     }
 
 }

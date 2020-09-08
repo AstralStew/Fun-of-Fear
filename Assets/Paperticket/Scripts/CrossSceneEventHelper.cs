@@ -5,9 +5,9 @@ using Paperticket;
 
 public class CrossSceneEventHelper : MonoBehaviour
 {
-    
+
     // SCENE EVENTS
-    public void LoadNextScene (string sceneName, float invokeTime ) {
+    public void LoadNextScene( string sceneName, float invokeTime ) {
         StartCoroutine(WaitThenLoadNextScene(sceneName, invokeTime));
     }
     IEnumerator WaitThenLoadNextScene( string sceneName, float invokeTime ) {
@@ -32,7 +32,7 @@ public class CrossSceneEventHelper : MonoBehaviour
 
 
     // PLAYER EVENTS
-    
+
     public bool PlayerUsesGravity {
         get { return PTUtilities.instance.PlayerUsesGravity; }
         set { PTUtilities.instance.PlayerUsesGravity = value; }
@@ -43,6 +43,12 @@ public class CrossSceneEventHelper : MonoBehaviour
         set { PTUtilities.instance.PlayerCanMove = value; }
     }
 
+    public bool ToggleTapeRecorder {
+        get { return PTUtilities.instance.ToggleTapeRecorder; }
+        set { PTUtilities.instance.ToggleTapeRecorder = value; }
+
+    }
+   
 
     // GENERAL EVENTS
 
