@@ -11,9 +11,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Paperticket/Scenes/EstateScene.unity
     guid: bdc6b48b82c6ae943921f08e8fef6a9f
-  - enabled: 1
-    path: Assets/Paperticket/Scenes/Gamma_Test.unity
-    guid: 176251780b1731346ae367b8f0a29200
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 017bca4b138d0304f8835f590ea0c81b,
       type: 2}

@@ -39,22 +39,28 @@ StructuredBuffer<CompressedFloat4x4> Instances12;
 StructuredBuffer<CompressedFloat4x4> Instances13;
 StructuredBuffer<CompressedFloat4x4> Instances14;
 StructuredBuffer<CompressedFloat4x4> Instances15;
-StructuredBuffer<CompressedFloat4x4> Instances16;
-StructuredBuffer<CompressedFloat4x4> Instances17;
-StructuredBuffer<CompressedFloat4x4> Instances18;
-StructuredBuffer<CompressedFloat4x4> Instances19;
-StructuredBuffer<CompressedFloat4x4> Instances20;
-StructuredBuffer<CompressedFloat4x4> Instances21;
-StructuredBuffer<CompressedFloat4x4> Instances22;
-StructuredBuffer<CompressedFloat4x4> Instances23;
-StructuredBuffer<CompressedFloat4x4> Instances24;
-StructuredBuffer<CompressedFloat4x4> Instances25;
-StructuredBuffer<CompressedFloat4x4> Instances26;
-StructuredBuffer<CompressedFloat4x4> Instances27;
-StructuredBuffer<CompressedFloat4x4> Instances28;
-StructuredBuffer<CompressedFloat4x4> Instances29;
-StructuredBuffer<CompressedFloat4x4> Instances30;
-StructuredBuffer<CompressedFloat4x4> Instances31;
+#if !defined(SHADER_API_GLCORE) \
+    && !defined(SHADER_API_GLES) \
+    && !defined(SHADER_API_GLES3) \
+    && !defined(SHADER_API_METAL) \
+    && !defined(SHADER_API_VULKAN)
+    StructuredBuffer<CompressedFloat4x4> Instances16;
+    StructuredBuffer<CompressedFloat4x4> Instances17;
+    StructuredBuffer<CompressedFloat4x4> Instances18;
+    StructuredBuffer<CompressedFloat4x4> Instances19;
+    StructuredBuffer<CompressedFloat4x4> Instances20;
+    StructuredBuffer<CompressedFloat4x4> Instances21;
+    StructuredBuffer<CompressedFloat4x4> Instances22;
+    StructuredBuffer<CompressedFloat4x4> Instances23;
+    StructuredBuffer<CompressedFloat4x4> Instances24;
+    StructuredBuffer<CompressedFloat4x4> Instances25;
+    StructuredBuffer<CompressedFloat4x4> Instances26;
+    StructuredBuffer<CompressedFloat4x4> Instances27;
+    StructuredBuffer<CompressedFloat4x4> Instances28;
+    StructuredBuffer<CompressedFloat4x4> Instances29;
+    StructuredBuffer<CompressedFloat4x4> Instances30;
+    StructuredBuffer<CompressedFloat4x4> Instances31;
+#endif
 
 uint Count0;
 uint Count1;
@@ -72,22 +78,28 @@ uint Count12;
 uint Count13;
 uint Count14;
 uint Count15;
-uint Count16;
-uint Count17;
-uint Count18;
-uint Count19;
-uint Count20;
-uint Count21;
-uint Count22;
-uint Count23;
-uint Count24;
-uint Count25;
-uint Count26;
-uint Count27;
-uint Count28;
-uint Count29;
-uint Count30;
-uint Count31;
+#if !defined(SHADER_API_GLCORE) \
+    && !defined(SHADER_API_GLES) \
+    && !defined(SHADER_API_GLES3) \
+    && !defined(SHADER_API_METAL) \
+    && !defined(SHADER_API_VULKAN)
+    uint Count16;
+    uint Count17;
+    uint Count18;
+    uint Count19;
+    uint Count20;
+    uint Count21;
+    uint Count22;
+    uint Count23;
+    uint Count24;
+    uint Count25;
+    uint Count26;
+    uint Count27;
+    uint Count28;
+    uint Count29;
+    uint Count30;
+    uint Count31;
+#endif
 
 uint CompressToUshort( float value, float precision )
 {
@@ -268,57 +280,69 @@ void AddInstances8(uint3 id : SV_DispatchThreadID)
 [numthreads(THREADS, 1, 1)]
 void AddInstances16(uint3 id : SV_DispatchThreadID)
 {
-    Add( id.x, Instances0, Count0 );
-    Add( id.x, Instances1, Count1 );
-    Add( id.x, Instances2, Count2 );
-    Add( id.x, Instances3, Count3 );
-    Add( id.x, Instances4, Count4 );
-    Add( id.x, Instances5, Count5 );
-    Add( id.x, Instances6, Count6 );
-    Add( id.x, Instances7, Count7 );
-    Add( id.x, Instances8, Count8 );
-    Add( id.x, Instances9, Count9 );
-    Add( id.x, Instances10, Count10 );
-    Add( id.x, Instances11, Count11 );
-    Add( id.x, Instances12, Count12 );
-    Add( id.x, Instances13, Count13 );
-    Add( id.x, Instances14, Count14 );
-    Add( id.x, Instances15, Count15 );
+    #if !defined(SHADER_API_GLCORE) \
+    && !defined(SHADER_API_GLES) \
+    && !defined(SHADER_API_GLES3) \
+    && !defined(SHADER_API_METAL) \
+    && !defined(SHADER_API_VULKAN)
+        Add( id.x, Instances0, Count0 );
+        Add( id.x, Instances1, Count1 );
+        Add( id.x, Instances2, Count2 );
+        Add( id.x, Instances3, Count3 );
+        Add( id.x, Instances4, Count4 );
+        Add( id.x, Instances5, Count5 );
+        Add( id.x, Instances6, Count6 );
+        Add( id.x, Instances7, Count7 );
+        Add( id.x, Instances8, Count8 );
+        Add( id.x, Instances9, Count9 );
+        Add( id.x, Instances10, Count10 );
+        Add( id.x, Instances11, Count11 );
+        Add( id.x, Instances12, Count12 );
+        Add( id.x, Instances13, Count13 );
+        Add( id.x, Instances14, Count14 );
+        Add( id.x, Instances15, Count15 );
+    #endif
 }
 
 [numthreads(THREADS, 1, 1)]
 void AddInstances32(uint3 id : SV_DispatchThreadID)
 {
-    Add( id.x, Instances0, Count0 );
-    Add( id.x, Instances1, Count1 );
-    Add( id.x, Instances2, Count2 );
-    Add( id.x, Instances3, Count3 );
-    Add( id.x, Instances4, Count4 );
-    Add( id.x, Instances5, Count5 );
-    Add( id.x, Instances6, Count6 );
-    Add( id.x, Instances7, Count7 );
-    Add( id.x, Instances8, Count8 );
-    Add( id.x, Instances9, Count9 );
-    Add( id.x, Instances10, Count10 );
-    Add( id.x, Instances11, Count11 );
-    Add( id.x, Instances12, Count12 );
-    Add( id.x, Instances13, Count13 );
-    Add( id.x, Instances14, Count14 );
-    Add( id.x, Instances15, Count15 );
-    Add( id.x, Instances16, Count16 );
-    Add( id.x, Instances17, Count17 );
-    Add( id.x, Instances18, Count18 );
-    Add( id.x, Instances19, Count19 );
-    Add( id.x, Instances20, Count20 );
-    Add( id.x, Instances21, Count21 );
-    Add( id.x, Instances22, Count22 );
-    Add( id.x, Instances23, Count23 );
-    Add( id.x, Instances24, Count24 );
-    Add( id.x, Instances25, Count25 );
-    Add( id.x, Instances26, Count26 );
-    Add( id.x, Instances27, Count27 );
-    Add( id.x, Instances28, Count28 );
-    Add( id.x, Instances29, Count29 );
-    Add( id.x, Instances30, Count30 );
-    Add( id.x, Instances31, Count31 );
+    #if !defined(SHADER_API_GLCORE) \
+    && !defined(SHADER_API_GLES) \
+    && !defined(SHADER_API_GLES3) \
+    && !defined(SHADER_API_METAL) \
+    && !defined(SHADER_API_VULKAN)
+        Add( id.x, Instances0, Count0 );
+        Add( id.x, Instances1, Count1 );
+        Add( id.x, Instances2, Count2 );
+        Add( id.x, Instances3, Count3 );
+        Add( id.x, Instances4, Count4 );
+        Add( id.x, Instances5, Count5 );
+        Add( id.x, Instances6, Count6 );
+        Add( id.x, Instances7, Count7 );
+        Add( id.x, Instances8, Count8 );
+        Add( id.x, Instances9, Count9 );
+        Add( id.x, Instances10, Count10 );
+        Add( id.x, Instances11, Count11 );
+        Add( id.x, Instances12, Count12 );
+        Add( id.x, Instances13, Count13 );
+        Add( id.x, Instances14, Count14 );
+        Add( id.x, Instances15, Count15 );
+        Add( id.x, Instances16, Count16 );
+        Add( id.x, Instances17, Count17 );
+        Add( id.x, Instances18, Count18 );
+        Add( id.x, Instances19, Count19 );
+        Add( id.x, Instances20, Count20 );
+        Add( id.x, Instances21, Count21 );
+        Add( id.x, Instances22, Count22 );
+        Add( id.x, Instances23, Count23 );
+        Add( id.x, Instances24, Count24 );
+        Add( id.x, Instances25, Count25 );
+        Add( id.x, Instances26, Count26 );
+        Add( id.x, Instances27, Count27 );
+        Add( id.x, Instances28, Count28 );
+        Add( id.x, Instances29, Count29 );
+        Add( id.x, Instances30, Count30 );
+        Add( id.x, Instances31, Count31 );
+    #endif
 }
