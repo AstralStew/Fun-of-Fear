@@ -18,6 +18,8 @@ public class GhostAnimController : MonoBehaviour
 
     public UnityEvent finishedEscapeAnimation;
 
+    [Min(0)] public float finishDelayTime; 
+
     void Awake() {
 
         // Grab the animator reference
@@ -98,7 +100,13 @@ public class GhostAnimController : MonoBehaviour
 
         // Wait until the escape animation has finished
         yield return new WaitUntil(() => animator.GetBool("finishedEscape"));
-
+                
+        if (finishDelayTime > 0) {
+            // Delay before finishing scape animation
+            if (debugging) Debug.Log("[GhostAnimController] Delay before finishedEscape = " + finishDelayTime);
+            yield return new WaitForSeconds(finishDelayTime);
+        }
+        
         if (debugging) Debug.Log("[GhostAnimController] finishedEscape set to true");
         finishedEscapeAnimation.Invoke();
                

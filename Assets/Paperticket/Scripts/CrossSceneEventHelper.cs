@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Paperticket;
+using TMPro;
 
 public class CrossSceneEventHelper : MonoBehaviour
 {
@@ -48,7 +49,25 @@ public class CrossSceneEventHelper : MonoBehaviour
         set { PTUtilities.instance.ToggleTapeRecorder = value; }
 
     }
-   
+
+    public bool ToggleFlashlight {
+        get { return PTUtilities.instance.ToggleFlashlight; }
+        set { PTUtilities.instance.ToggleFlashlight = value; }
+
+    }
+
+    public void FadeHeadToBlack( float duration ) {
+        PTUtilities.instance.FadeHeadToBlack(duration);
+    }
+
+    public void FadeHeadToClear( float duration ) {
+        PTUtilities.instance.FadeHeadToClear(duration);
+    }
+
+
+
+
+
 
     // GENERAL EVENTS
 
@@ -56,6 +75,27 @@ public class CrossSceneEventHelper : MonoBehaviour
         Destroy(objectToDestroy);
     }
     
+    public void FadeSpriteIn (SpriteRenderer sprite) {
+        StartCoroutine(PTUtilities.instance.FadeAlphaTo(sprite, 1, 1.5f));
+    }
 
+    public void FadeSpriteOut( SpriteRenderer sprite ) {
+        StartCoroutine(PTUtilities.instance.FadeAlphaTo(sprite, 0, 1.5f));
+    }
+
+    public void FadeTextIn( TextMeshPro text ) {
+        StartCoroutine(PTUtilities.instance.FadeAlphaTo(text, 1, 1.5f));
+    }
+
+    public void FadeTextOut( TextMeshPro text ) {
+        StartCoroutine(PTUtilities.instance.FadeAlphaTo(text, 0, 1.5f));
+    }
+
+
+    public void PlayAudioClip( AudioClip clip ) {
+
+        AudioManager.instance.PlayAudioClip(clip, PTUtilities.instance.HeadsetPosition(), 1f);
+
+    }
 
 }

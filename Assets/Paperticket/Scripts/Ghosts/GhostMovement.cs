@@ -121,6 +121,7 @@ namespace Paperticket {
 
             StopAllCoroutines();
             Destroy(agent);
+            //agent.enabled = false;
 
             StartCoroutine(ChasingThePlayer());
         }

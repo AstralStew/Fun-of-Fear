@@ -182,5 +182,15 @@ namespace Paperticket {
                 }
             }            
         }
+
+
+        public void PlayAudioClip (AudioClip clip, Vector3 position, float volume) {
+
+            AudioSource.PlayClipAtPoint(clip, position, volume);
+
+        }
+
+
+
     }
 }

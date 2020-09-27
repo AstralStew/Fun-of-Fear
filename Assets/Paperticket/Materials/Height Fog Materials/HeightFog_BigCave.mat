@@ -27,16 +27,16 @@ Material:
     - _FOGG: 1
     - _FogAxisMode: 1
     - _FogDistanceEnd: 52.4
-    - _FogDistanceStart: -10.6
+    - _FogDistanceStart: -10
     - _FogHeightEnd: 58.6
     - _FogHeightStart: 4.4
-    - _FogIntensity: 1
+    - _FogIntensity: 0.879
     - _HeightFogPreset: 1
     - _IsHeightFogShader: 1
     - _IsStandardPipeline: 0
     - _NOISEE: 1
     - _NoiseDistanceEnd: 33
-    - _NoiseIntensity: 1
+    - _NoiseIntensity: 0.5
     - _NoiseMode: 2
     - _NoiseModeBlend: 1
     - _NoiseScale: 7.1

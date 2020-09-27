@@ -34,7 +34,10 @@ public class ManualOcclusion : MonoBehaviour
         
     void PopulateChildList() {
         for (int i = 0; i < transform.childCount; i++) {
-            children.Add(transform.GetChild(i));
+            // Add the children if they are not already in the list
+            if (!children.Contains(transform.GetChild(i))) {
+                children.Add(transform.GetChild(i));
+            }
         }
     }
 

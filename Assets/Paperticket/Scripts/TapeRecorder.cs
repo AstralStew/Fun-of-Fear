@@ -15,10 +15,15 @@ public class TapeRecorder : MonoBehaviour {
     [SerializeField] AudioSource source;
     [SerializeField] TextMeshPro displayText;
 
+    [SerializeField] AudioClip startClip;
+    [SerializeField] AudioClip stopClip;
+
 
     [Header("Controls")]
     [Space(10)]
     [SerializeField] bool autoPlay;
+    [SerializeField] [Range(0, 1)] float startStopVolume;
+    [SerializeField] [Min(0)] float startDelay;
     [Space(5)]
     [SerializeField] [Range(0, 0.99f)] float indexTriggerDeadzone = 0.5f;
     [SerializeField] [Range(0, 0.99f)] float gripTriggerDeadzone = 0.5f;
@@ -94,9 +99,14 @@ public class TapeRecorder : MonoBehaviour {
 
     public void Pause() {
         if (debugging) Debug.Log("[TapeRecorder] Pausing narration playback");
+
+        // Play the start sound
+        AudioSource.PlayClipAtPoint(stopClip, transform.position, startStopVolume);
+
         playing = false;
         if (playingCo != null) StopCoroutine(playingCo);
         source.Pause();
+               
     }
 
     public void Next() {
@@ -107,6 +117,7 @@ public class TapeRecorder : MonoBehaviour {
         source.Stop();
         currentTime = 0;
         clipIndex += 1;
+
         // Clamp the index to stop looping forward and back
         clipIndex = Mathf.Clamp(clipIndex, 0, narrativeQueue.Count - 1);
         displayText.text = narrativeQueue[clipIndex].name;
@@ -122,8 +133,7 @@ public class TapeRecorder : MonoBehaviour {
         source.Stop();
         currentTime = 0;
         clipIndex -= 1;
-        // Modulo the index to keep it reasonable
-        //clipIndex = clipIndex % clipQueue.Count;
+
         // Clamp the index to stop looping forward and back
         clipIndex = Mathf.Clamp(clipIndex, 0, narrativeQueue.Count - 1);
         displayText.text = narrativeQueue[clipIndex].name;
@@ -153,6 +163,10 @@ public class TapeRecorder : MonoBehaviour {
 
     IEnumerator PlayingClip() {
         if (debugging) Debug.Log("[TapeRecorder] Playing narration clip (" + narrativeQueue[clipIndex].name + "), queue index (" + clipIndex + ")");
+                
+        // Play the start sound and delay if applicable
+        AudioSource.PlayClipAtPoint(startClip, transform.position, startStopVolume);
+        if (startDelay > 0) yield return new WaitForSeconds(startDelay);
 
         // Make sure the source is set and start playing
         if (source.clip != narrativeQueue[clipIndex].clip) source.clip = narrativeQueue[clipIndex].clip;

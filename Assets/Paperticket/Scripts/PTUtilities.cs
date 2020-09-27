@@ -45,6 +45,8 @@ namespace Paperticket {
         public Transform leftController;
         public Transform rightController;
         public TapeRecorder tapeRecorder;
+        public HandSpotlight handSpotlight;
+        public SpriteRenderer headFadeSprite;
         SnapTurnProvider snapTurnProvider;
 
         [Space(10)]
@@ -75,17 +77,68 @@ namespace Paperticket {
                 tapeRecorder.gameObject.SetActive(value);
             }
         }
+
+        public bool ToggleFlashlight {
+            get { return handSpotlight.gameObject.activeInHierarchy; }
+            set {
+                if (handSpotlight == null) {
+                    Debug.LogError("[PTUtilities] ERROR -> No Flashlight defined!");
+                    return;
+                }
+                if (_Debug) Debug.Log("[PTUTilities] Flashlight toggled to " + value);
+                handSpotlight.gameObject.SetActive(value);
+            }
+        }
+
+        Coroutine headFadeCo;
+        public void FadeHeadToBlack( float duration ) {
+            if (headFadeCo != null) StopCoroutine(headFadeCo);
+
+            headFadeCo = StartCoroutine(FadeAlphaTo(headFadeSprite, 1, duration));
+        }
+
+        public void FadeHeadToClear( float duration ) {
+            if (headFadeCo != null) StopCoroutine(headFadeCo);
+
+            headFadeCo = StartCoroutine(FadeAlphaTo(headFadeSprite, 0, duration));
+        }
+
+        public void FadeSpriteIn( SpriteRenderer sprite ) {
+            StartCoroutine(FadeAlphaTo(sprite, 1, 2.5f));
+        }
+
+        public void FadeSpriteOut( SpriteRenderer sprite ) {
+            StartCoroutine(FadeAlphaTo(sprite, 0, 2.5f));
+        }
+
+        public void FadeTextIn( TextMeshPro text ) {
+            StartCoroutine(FadeAlphaTo(text, 1, 2.5f));
+        }
+
+        public void FadeTextOut( TextMeshPro text ) {
+            StartCoroutine(FadeAlphaTo(text, 0, 2.5f));
+        }
+
+        public void FadeAudioMasterIn( float duration ) {
+
+            // If an audio listener fade is already happening, cancel it and start the new one
+            if (fadingResonanceListener) StopCoroutine(fadeResonanceListenerCoroutine);
+            fadeResonanceListenerCoroutine = StartCoroutine(FadeResonanceListenerTo(1, duration));
+
+        }
         
 
+        public void FadeAudioMasterOut( float duration ) {
+
+            // If an audio listener fade is already happening, cancel it and start the new one
+            if (fadingResonanceListener) StopCoroutine(fadeResonanceListenerCoroutine);
+            fadeResonanceListenerCoroutine = StartCoroutine(FadeResonanceListenerTo(0, duration));
+
+        }
 
 
 
-
-
-
-
-
-void Awake() {
+        void Awake() {
 
             // Create an instanced version of this script, or destroy it if one already exists
             if (instance == null) {
@@ -622,6 +675,8 @@ void Awake() {
 
         }
 
+
+
         // Helper coroutine for fading audio listener volume
         IEnumerator FadeAudioListenerTo( float targetVolume, float duration ) {
             fadingAudioListener = true;
@@ -646,7 +701,7 @@ void Awake() {
 
         IEnumerator FadeResonanceListenerTo( float targetVolume, float duration ) {
             fadingResonanceListener = true;
-
+            
             float currentDB = 0; _ResonanceMaster.GetFloat("ResonanceMasterVolume", out currentDB);
             float targetDB = (targetVolume - 1) * 80;
 
